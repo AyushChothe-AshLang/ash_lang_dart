@@ -1,4 +1,6 @@
-import 'package:ash_lang/tokenizer/model/postion.dart';
+import 'package:ash_lang/parser/models/nodes.dart';
+import 'package:ash_lang/parser/parser.dart';
+import 'package:ash_lang/tokenizer/model/position.dart';
 import 'package:ash_lang/tokenizer/model/token.dart';
 import 'package:ash_lang/tokenizer/tokenizer.dart';
 import 'package:test/test.dart';
@@ -204,4 +206,28 @@ void main() {
       });
     },
   );
+  group("Parser", () {
+    test("Empty Program", () {
+      Tokenizer tokenizer = Tokenizer(code: "");
+      Parser parser = Parser(tokens: tokenizer.tokenize());
+      expect(parser.parse().runtimeType, EOFNode);
+    });
+    test("Arithmatic Expression", () {
+      Tokenizer tokenizer = Tokenizer(code: "(1+2)*3/(4^6)");
+      Parser parser = Parser(tokens: tokenizer.tokenize());
+      expect(parser.parse().toString(), "(((1.0+2.0)*3.0)/(4.0^6.0))");
+    });
+    test("Comparison", () {
+      Tokenizer tokenizer = Tokenizer(code: "(1*2+3)<=(4/2)");
+      Parser parser = Parser(tokens: tokenizer.tokenize());
+      expect(parser.parse().toString(), "(((1.0*2.0)+3.0)<=(4.0/2.0))");
+    });
+    test("Comparison (Equality)", () {
+      Tokenizer tokenizer =
+          Tokenizer(code: "(1/2^3)<=(24/4)==((1/2)^3)<=(22/4)");
+      Parser parser = Parser(tokens: tokenizer.tokenize());
+      expect(parser.parse().toString(),
+          "(((1.0/(2.0^3.0))<=(24.0/4.0))==(((1.0/2.0)^3.0)<=(22.0/4.0)))");
+    });
+  });
 }

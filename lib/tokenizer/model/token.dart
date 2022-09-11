@@ -1,15 +1,21 @@
-import 'package:ash_lang/tokenizer/model/postion.dart';
+import 'package:ash_lang/tokenizer/model/position.dart';
 
 enum TokenType {
-  number,
-  plus,
-  minus,
-  multiply,
-  divide,
-  power,
-  lparam,
-  rparam,
-  eof,
+  number, // 1234567890.
+  plus, // +
+  minus, // -
+  multiply, //\ *
+  divide, // /
+  power, // ^
+  lparam, // (
+  rparam, // )
+  eq, // =
+  deq, // ==
+  lt, // <
+  gt, // >
+  lte, // <=
+  gte, // >=
+  eof, // End of File
 }
 
 class Token {

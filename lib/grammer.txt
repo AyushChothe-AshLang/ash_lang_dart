@@ -1,0 +1,30 @@
+ADD_SUB: '+' | '-'
+MUL_DIV: '*' | '/'
+POW: '^'
+
+EQUALITY:
+    | COMPARISON ['==' COMPARISON]+
+
+COMPARISON:
+    | EXPR > EXPR
+    | EXPR < EXPR
+    | EXPR >= EXPR
+    | EXPR <= EXPR
+
+EXPR:
+    | TERM [ADD_SUB TERM]+
+    ;
+
+TERM:
+    | FACTOR [MUL_DIV FACTOR]+
+    ;
+
+FACTOR:
+    | ATOM [POW ATOM]+
+    ;
+
+ATOM:
+    | '(' COMPARISON ')'
+    | NUMBER
+    | '+' NUMBER
+    | '-' NUMBER

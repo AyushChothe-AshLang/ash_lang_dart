@@ -1,4 +1,4 @@
-import 'package:ash_lang/tokenizer/model/postion.dart';
+import 'package:ash_lang/tokenizer/model/position.dart';
 import 'package:ash_lang/tokenizer/model/token.dart';
 import 'package:ash_lang/utils/utils.dart';
 
@@ -93,6 +93,63 @@ class Tokenizer {
           ),
         );
         next();
+      } else if (curr == "=") {
+        Position start = getCurrentPos();
+        Token eq = Token(
+          type: TokenType.eq,
+          value: '=',
+          pos: PositionRange(from: start),
+        );
+        next();
+        if (pos < code.length && curr == '=') {
+          Token deq = Token(
+            type: TokenType.deq,
+            value: '==',
+            pos: PositionRange(from: start, to: getCurrentPos()),
+          );
+          tokens.add(deq);
+          next();
+        } else {
+          tokens.add(eq);
+        }
+      } else if (curr == ">") {
+        Position start = getCurrentPos();
+        Token gt = Token(
+          type: TokenType.gt,
+          value: '>',
+          pos: PositionRange(from: start),
+        );
+        next();
+        if (pos < code.length && curr == '=') {
+          Token gte = Token(
+            type: TokenType.gte,
+            value: '>=',
+            pos: PositionRange(from: start, to: getCurrentPos()),
+          );
+          tokens.add(gte);
+          next();
+        } else {
+          tokens.add(gt);
+        }
+      } else if (curr == "<") {
+        Position start = getCurrentPos();
+        Token lt = Token(
+          type: TokenType.lt,
+          value: '<',
+          pos: PositionRange(from: start),
+        );
+        next();
+        if (pos < code.length && curr == '=') {
+          Token lte = Token(
+            type: TokenType.lte,
+            value: '<=',
+            pos: PositionRange(from: start, to: getCurrentPos()),
+          );
+          tokens.add(lte);
+          next();
+        } else {
+          tokens.add(lt);
+        }
       } else {
         throw Exception("Illegal char at [$line:$column]: '$curr'");
       }
