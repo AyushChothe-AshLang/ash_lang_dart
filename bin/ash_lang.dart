@@ -1,9 +1,5 @@
-import 'package:ash_lang/ash_lang.dart';
+import 'package:ash_lang/tokenizer/tokenizer.dart';
 
 void main(List<String> args) {
-  if (args.isNotEmpty) {
-    AshLang.runFile(args[0]);
-  } else {
-    AshLang().repl();
-  }
+  print(Tokenizer(code: "((1 + 2) * 3)").tokenize());
 }
