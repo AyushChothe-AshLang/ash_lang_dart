@@ -15,6 +15,22 @@ abstract class BinaryOpNode implements Node {
   String toString() => "($left$op$right)";
 }
 
+abstract class BinaryOpNumberNode extends BinaryOpNode {
+  BinaryOpNumberNode({
+    required super.left,
+    required super.right,
+    required super.op,
+  });
+}
+
+abstract class BinaryOpBooleanNode extends BinaryOpNode {
+  BinaryOpBooleanNode({
+    required super.left,
+    required super.right,
+    required super.op,
+  });
+}
+
 abstract class UnaryNode implements Node {
   Node node;
   String op;

@@ -76,14 +76,14 @@ void main() {
             tokenizer.tokenize().toString(),
             [
               Token(
-                type: TokenType.lparam,
+                type: TokenType.lParam,
                 value: '(',
                 pos: PositionRange(
                   from: Position(line: 1, column: 1),
                 ),
               ),
               Token(
-                type: TokenType.rparam,
+                type: TokenType.rParam,
                 value: ')',
                 pos: PositionRange(
                   from: Position(line: 1, column: 2),
@@ -228,6 +228,12 @@ void main() {
       Parser parser = Parser(tokens: tokenizer.tokenize());
       expect(parser.parse().toString(),
           "(((1.0/(2.0^3.0))<=(24.0/4.0))==(((1.0/2.0)^3.0)<=(22.0/4.0)))");
+    });
+    test("Logical And Or", () {
+      Tokenizer tokenizer = Tokenizer(code: "(1==2 & (2==2 | 4==5) & 3<3)");
+      Parser parser = Parser(tokens: tokenizer.tokenize());
+      expect(parser.parse().toString(),
+          "(((1.0==2.0)&((2.0==2.0)|(4.0==5.0)))&(3.0<3.0))");
     });
   });
 }

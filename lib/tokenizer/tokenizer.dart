@@ -20,6 +20,48 @@ class Tokenizer {
 
   Position getCurrentPos() => Position(line: line, column: column);
 
+  addEof(TokenType type) {
+    tokens.add(
+      Token(
+        type: type,
+        value: null,
+        pos: PositionRange(from: getCurrentPos()),
+      ),
+    );
+  }
+
+  addSingleCharToken(TokenType type) {
+    tokens.add(
+      Token(
+        type: type,
+        value: curr,
+        pos: PositionRange(from: getCurrentPos()),
+      ),
+    );
+    next();
+  }
+
+  addDoubleCharToken(TokenType firsType, TokenType secondType, String chars) {
+    Position start = getCurrentPos();
+    Token ft = Token(
+      type: firsType,
+      value: chars[0],
+      pos: PositionRange(from: start),
+    );
+    next();
+    if (pos < code.length && curr == chars[1]) {
+      Token st = Token(
+        type: secondType,
+        value: chars,
+        pos: PositionRange(from: start, to: getCurrentPos()),
+      );
+      tokens.add(st);
+      next();
+    } else {
+      tokens.add(ft);
+    }
+  }
+
   List<Token> tokenize() {
     while (pos < code.length) {
       if (whitespace.contains(curr)) {
@@ -29,141 +71,55 @@ class Tokenizer {
         }
         next();
       } else if (numbers.contains(curr)) {
-        parseNumber();
+        parseNumberLiteral();
+      } else if (chars.hasMatch(curr)) {
+        parseIdentifier();
+      } else if (curr == '"' || curr == "'") {
+        parseStringLiteral(curr);
+      } else if (curr == '"') {
       } else if (curr == "+") {
-        tokens.add(
-          Token(
-            type: TokenType.plus,
-            value: '+',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.plus);
       } else if (curr == "-") {
-        tokens.add(
-          Token(
-            type: TokenType.minus,
-            value: '-',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.minus);
       } else if (curr == "*") {
-        tokens.add(
-          Token(
-            type: TokenType.multiply,
-            value: '*',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.multiply);
       } else if (curr == "/") {
-        tokens.add(
-          Token(
-            type: TokenType.divide,
-            value: '/',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.divide);
       } else if (curr == "^") {
-        tokens.add(
-          Token(
-            type: TokenType.power,
-            value: '^',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.power);
       } else if (curr == "(") {
-        tokens.add(
-          Token(
-            type: TokenType.lparam,
-            value: '(',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.lParam);
       } else if (curr == ")") {
-        tokens.add(
-          Token(
-            type: TokenType.rparam,
-            value: ')',
-            pos: PositionRange(from: getCurrentPos()),
-          ),
-        );
-        next();
+        addSingleCharToken(TokenType.rParam);
+      } else if (curr == "{") {
+        addSingleCharToken(TokenType.lBrace);
+      } else if (curr == "}") {
+        addSingleCharToken(TokenType.rBrace);
+      } else if (curr == "&") {
+        addSingleCharToken(TokenType.and);
+      } else if (curr == "|") {
+        addSingleCharToken(TokenType.or);
+      } else if (curr == ",") {
+        addSingleCharToken(TokenType.comma);
+      } else if (curr == ":") {
+        addSingleCharToken(TokenType.colon);
+      } else if (curr == ";") {
+        addSingleCharToken(TokenType.semicolon);
       } else if (curr == "=") {
-        Position start = getCurrentPos();
-        Token eq = Token(
-          type: TokenType.eq,
-          value: '=',
-          pos: PositionRange(from: start),
-        );
-        next();
-        if (pos < code.length && curr == '=') {
-          Token deq = Token(
-            type: TokenType.deq,
-            value: '==',
-            pos: PositionRange(from: start, to: getCurrentPos()),
-          );
-          tokens.add(deq);
-          next();
-        } else {
-          tokens.add(eq);
-        }
+        addDoubleCharToken(TokenType.eq, TokenType.deq, "==");
       } else if (curr == ">") {
-        Position start = getCurrentPos();
-        Token gt = Token(
-          type: TokenType.gt,
-          value: '>',
-          pos: PositionRange(from: start),
-        );
-        next();
-        if (pos < code.length && curr == '=') {
-          Token gte = Token(
-            type: TokenType.gte,
-            value: '>=',
-            pos: PositionRange(from: start, to: getCurrentPos()),
-          );
-          tokens.add(gte);
-          next();
-        } else {
-          tokens.add(gt);
-        }
+        addDoubleCharToken(TokenType.gt, TokenType.gte, ">=");
       } else if (curr == "<") {
-        Position start = getCurrentPos();
-        Token lt = Token(
-          type: TokenType.lt,
-          value: '<',
-          pos: PositionRange(from: start),
-        );
-        next();
-        if (pos < code.length && curr == '=') {
-          Token lte = Token(
-            type: TokenType.lte,
-            value: '<=',
-            pos: PositionRange(from: start, to: getCurrentPos()),
-          );
-          tokens.add(lte);
-          next();
-        } else {
-          tokens.add(lt);
-        }
+        addDoubleCharToken(TokenType.lt, TokenType.lte, "<=");
       } else {
         throw Exception("Illegal char at [$line:$column]: '$curr'");
       }
     }
-    tokens.add(
-      Token(
-        type: TokenType.eof,
-        pos: PositionRange(from: getCurrentPos()),
-      ),
-    );
+    addEof(TokenType.eof);
     return tokens;
   }
 
-  void parseNumber() {
+  void parseNumberLiteral() {
     String num = "";
     int dot = 0;
 
@@ -186,6 +142,62 @@ class Tokenizer {
       Token(
         type: TokenType.number,
         value: double.parse(num),
+        pos: PositionRange(from: from, to: to),
+      ),
+    );
+  }
+
+  parseStringLiteral(String quoteType) {
+    String id = "";
+
+    Position from = getCurrentPos();
+
+    // Advance first quoteType
+    next();
+
+    while (pos < code.length && curr != quoteType && chars.hasMatch(curr)) {
+      id += curr;
+      next();
+    }
+
+    // Advance last quoteType
+    if (curr == quoteType) {
+      next();
+    } else {
+      throw Exception(
+          "Invalid Syntax ${getCurrentPos()}: Expected $quoteType (Unterminated String Literal)");
+    }
+
+    Position to = getCurrentPos();
+    tokens.add(
+      Token(
+        type: TokenType.stringLiteral,
+        value: id,
+        pos: PositionRange(from: from, to: to),
+      ),
+    );
+  }
+
+  parseIdentifier() {
+    String id = "";
+
+    Position from = getCurrentPos();
+
+    while (pos < code.length && chars.hasMatch(curr)) {
+      id += curr;
+      next();
+    }
+
+    Position to = getCurrentPos();
+
+    TokenType tokenType = id == "true" || id == "false"
+        ? TokenType.booleanLiteral
+        : TokenType.identifier;
+
+    tokens.add(
+      Token(
+        type: tokenType,
+        value: id == "true" ? true : (id == "false" ? false : id),
         pos: PositionRange(from: from, to: to),
       ),
     );
