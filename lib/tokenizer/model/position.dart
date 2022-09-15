@@ -16,5 +16,5 @@ class PositionRange {
     this.to,
   });
   @override
-  String toString() => "$from${to != null ? ':$to' : ''}";
+  String toString() => "($from${to != null ? ':$to' : ''})";
 }

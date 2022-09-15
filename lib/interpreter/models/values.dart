@@ -32,4 +32,13 @@ class BooleanValue implements Value {
   String toString() => "$value";
 }
 
-class NullValue implements Value {}
+class ReturnValue implements Value {
+  dynamic value;
+  ReturnValue({
+    required this.value,
+  });
+}
+
+class NullValue implements Value {
+  final dynamic value = null;
+}

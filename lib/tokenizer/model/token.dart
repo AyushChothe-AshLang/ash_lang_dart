@@ -10,8 +10,8 @@ enum TokenType {
   multiply, //\ *
   divide, // /
   power, // ^
-  lParam, // (
-  rParam, // )
+  lParan, // (
+  rParan, // )
   lBrace, // {
   rBrace, // }
   eq, // =
@@ -26,6 +26,15 @@ enum TokenType {
   colon, // :
   semicolon, // ;
   eof, // End of File
+  // Keywords
+  whileK, // while
+  ifK, // if
+  elseK, // else
+  elifK, // elif
+  fnK, // fn
+  breakK, // break
+  continueK, // continue
+  returnK, // return
 }
 
 class Token {
@@ -40,7 +49,7 @@ class Token {
   });
 
   @override
-  String toString() => "${type.name}:$value";
+  String toString() => "${type.name}:$value:$pos";
 
   String getPos() => "$pos";
 }

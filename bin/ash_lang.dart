@@ -1,10 +1,6 @@
 import 'dart:io';
 
-import 'package:ash_lang/interpreter/interpreter.dart';
-import 'package:ash_lang/parser/models/node.dart';
-import 'package:ash_lang/parser/parser.dart';
-import 'package:ash_lang/tokenizer/model/token.dart';
-import 'package:ash_lang/tokenizer/tokenizer.dart';
+import 'package:ash_lang/ash_lang.dart';
 
 void main(List<String> args) {
   List<Token> tokens =

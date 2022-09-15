@@ -46,15 +46,74 @@ class BlockStatementNode implements Node {
   String toString() => "$statements";
 }
 
+class FunctionDeclarationNode implements Node {
+  IdentifierNode fnId;
+  List<IdentifierNode> params;
+  BlockStatementNode body;
+
+  FunctionDeclarationNode({
+    required this.fnId,
+    required this.params,
+    required this.body,
+  });
+  @override
+  String toString() => "fn $fnId(${params.join(',')}){$body}";
+}
+
 class FunctionCallNode implements Node {
-  String fn;
+  IdentifierNode fnId;
   List<Node> args;
   FunctionCallNode({
-    required this.fn,
+    required this.fnId,
     required this.args,
   });
   @override
-  String toString() => "$fn($args)";
+  String toString() => "$fnId($args)";
+}
+
+class ReturnNode implements Node {
+  Node returnNode;
+  ReturnNode({
+    required this.returnNode,
+  });
+}
+
+class WhileLoopNode implements Node {
+  BinaryOpBooleanNode condition;
+  BlockStatementNode block;
+  WhileLoopNode({
+    required this.condition,
+    required this.block,
+  });
+  @override
+  String toString() => "while($condition){$block}";
+}
+
+class IfStatementNode implements Node {
+  BinaryOpBooleanNode condition;
+  BlockStatementNode trueBlock;
+  List<ElifStatementNode> elifBlocks;
+  BlockStatementNode? elseBlock;
+  IfStatementNode({
+    required this.condition,
+    required this.trueBlock,
+    this.elifBlocks = const [],
+    this.elseBlock,
+  });
+  @override
+  String toString() =>
+      "if($condition){$trueBlock}${elifBlocks.join('')}else{$elseBlock}";
+}
+
+class ElifStatementNode implements Node {
+  BinaryOpBooleanNode condition;
+  BlockStatementNode trueBlock;
+  ElifStatementNode({
+    required this.condition,
+    required this.trueBlock,
+  });
+  @override
+  String toString() => "elif($condition){$trueBlock}";
 }
 
 class AddNode extends BinaryOpNumberNode {
@@ -110,7 +169,7 @@ class LogicalAndNode extends BinaryOpBooleanNode {
   LogicalAndNode({required super.left, required super.right}) : super(op: '&');
 }
 
-class LogicalOrNode extends BinaryOpNode {
+class LogicalOrNode extends BinaryOpBooleanNode {
   LogicalOrNode({required super.left, required super.right}) : super(op: '|');
 }
 

@@ -88,9 +88,9 @@ class Tokenizer {
       } else if (curr == "^") {
         addSingleCharToken(TokenType.power);
       } else if (curr == "(") {
-        addSingleCharToken(TokenType.lParam);
+        addSingleCharToken(TokenType.lParan);
       } else if (curr == ")") {
-        addSingleCharToken(TokenType.rParam);
+        addSingleCharToken(TokenType.rParan);
       } else if (curr == "{") {
         addSingleCharToken(TokenType.lBrace);
       } else if (curr == "}") {
@@ -155,13 +155,13 @@ class Tokenizer {
     // Advance first quoteType
     next();
 
-    while (pos < code.length && curr != quoteType && chars.hasMatch(curr)) {
+    while (pos < code.length && curr != quoteType) {
       id += curr;
       next();
     }
 
     // Advance last quoteType
-    if (curr == quoteType) {
+    if (pos < code.length && curr == quoteType) {
       next();
     } else {
       throw Exception(
@@ -194,12 +194,22 @@ class Tokenizer {
         ? TokenType.booleanLiteral
         : TokenType.identifier;
 
-    tokens.add(
-      Token(
-        type: tokenType,
-        value: id == "true" ? true : (id == "false" ? false : id),
-        pos: PositionRange(from: from, to: to),
-      ),
-    );
+    if (tokenType == TokenType.booleanLiteral) {
+      tokens.add(
+        Token(
+          type: tokenType,
+          value: id == "true" ? true : false,
+          pos: PositionRange(from: from, to: to),
+        ),
+      );
+    } else {
+      tokens.add(
+        Token(
+          type: getTokenTypeFromId(id),
+          value: id,
+          pos: PositionRange(from: from, to: to),
+        ),
+      );
+    }
   }
 }

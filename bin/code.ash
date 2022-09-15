@@ -1,10 +1,11 @@
-x = 1;
-{
-  x = 5;
-  {
-    x = 22;
-    print(x);
+fn fact(n){
+  if(n==0 | n==1){
+    while(n==0 | n==1){
+      return 1;
+    }
+  }else{
+    return (n * (fact(n-1)));
   }
-  print(x);
 }
-print(x);
+
+print(fact(5));
