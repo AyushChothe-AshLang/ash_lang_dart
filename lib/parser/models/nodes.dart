@@ -132,6 +132,10 @@ class DivideNode extends BinaryOpNumberNode {
   DivideNode({required super.left, required super.right}) : super(op: '/');
 }
 
+class ModulusNode extends BinaryOpNumberNode {
+  ModulusNode({required super.left, required super.right}) : super(op: '%');
+}
+
 class PowerNode extends BinaryOpNumberNode {
   PowerNode({required super.left, required super.right}) : super(op: '^');
 }
@@ -174,9 +178,8 @@ class LogicalOrNode extends BinaryOpBooleanNode {
 }
 
 class AssignmentNode extends BinaryOpNumberNode {
-  IdentifierNode id;
-  AssignmentNode({required this.id, required super.right})
-      : super(left: id, op: '=');
+  AssignmentNode({required IdentifierNode super.left, required super.right})
+      : super(op: '=');
 }
 
 class EOFNode implements Node {}

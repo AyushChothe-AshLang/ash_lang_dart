@@ -85,6 +85,8 @@ class Tokenizer {
         addSingleCharToken(TokenType.multiply);
       } else if (curr == "/") {
         addSingleCharToken(TokenType.divide);
+      } else if (curr == "%") {
+        addSingleCharToken(TokenType.modulus);
       } else if (curr == "^") {
         addSingleCharToken(TokenType.power);
       } else if (curr == "(") {

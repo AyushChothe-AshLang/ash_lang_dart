@@ -10,16 +10,21 @@ class Interpreter {
   final Node ast;
 
   Interpreter({required this.ast});
+  Scope globalScope = Scope();
 
   Map<String, Function> inbuiltFunctions = {
     'print': print,
     'min': min,
     'max': max,
+    'int': (String i) => double.parse(i),
+    'str': (dynamic i) => i.toString()
   };
 
   Value? run() {
-    Scope globalScope = Scope();
     if (ast is! EOFNode) {
+      (ast as BlockStatementNode)
+          .statements
+          .add(FunctionCallNode(fnId: IdentifierNode(value: 'main'), args: []));
       walk(ast, globalScope);
     }
     return NullValue();
@@ -95,63 +100,55 @@ class Interpreter {
 
   Value walkBinaryOpNode(BinaryOpNode node, Scope scope) {
     String op = node.op;
+
+    if (op == '=') {
+      dynamic right = walk(node.right, scope);
+      scope.setSymbol((node.left as IdentifierNode).value, right.value);
+      return right;
+    }
+
+    dynamic left = walk(node.left, scope).value;
+    dynamic right = walk(node.right, scope).value;
     switch (op) {
       case '+':
-        return NumberValue(
-            value:
-                (walk(node.left, scope)).value + walk(node.right, scope).value);
+        if (left.runtimeType == right.runtimeType) {
+          if (left is double) {
+            return NumberValue(value: left + right);
+          } else if (left is String) {
+            return StringValue(value: left + right);
+          }
+        } else {
+          throw Exception("Runtime Error: '$op' used on invalid operands!");
+        }
+        break;
       case '-':
-        return NumberValue(
-            value:
-                walk(node.left, scope).value - walk(node.right, scope).value);
+        return NumberValue(value: left - right);
       case '*':
-        return NumberValue(
-            value:
-                walk(node.left, scope).value * walk(node.right, scope).value);
+        return NumberValue(value: left * right);
       case '/':
-        return NumberValue(
-            value:
-                walk(node.left, scope).value / walk(node.right, scope).value);
+        return NumberValue(value: left / right);
+      case '%':
+        return NumberValue(value: left % right);
       case '^':
-        return NumberValue(
-            value:
-                pow(walk(node.left, scope).value, walk(node.right, scope).value)
-                    as double);
+        return NumberValue(value: pow(left, right) as double);
       case '&':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value && walk(node.right, scope).value);
+        return BooleanValue(value: left && right);
       case '|':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value || walk(node.right, scope).value);
-      case '=':
-        dynamic right = walk(node.right, scope);
-        scope.setSymbol((node as AssignmentNode).id.value, right.value);
-        return right;
+        return BooleanValue(value: left || right);
       case '==':
-        return BooleanValue(
-            value: (walk(node.left, scope)).value ==
-                walk(node.right, scope).value);
+        return BooleanValue(value: left == right);
       case '<':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value < walk(node.right, scope).value);
+        return BooleanValue(value: left < right);
       case '<=':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value <= walk(node.right, scope).value);
+        return BooleanValue(value: left <= right);
       case '>':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value > walk(node.right, scope).value);
+        return BooleanValue(value: left > right);
       case '>=':
-        return BooleanValue(
-            value:
-                walk(node.left, scope).value >= walk(node.right, scope).value);
+        return BooleanValue(value: left >= right);
       default:
         throw Exception("Runtime Error!");
     }
+    return NullValue();
   }
 
   Value walkIfStatementNode(IfStatementNode node, Scope scope) {
@@ -209,7 +206,7 @@ class Interpreter {
 
         if (node.args.length != params.length) {
           throw Exception(
-              "Runtime Error: Expected ${params.length} arguments found ${node.args.length}");
+              "Runtime Error: Expected ${params.length} arguments found ${node.args.length}!");
         }
         Scope localScope = Scope(parent: scope);
         for (int i = 0; i < params.length; i++) {

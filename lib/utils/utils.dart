@@ -1,4 +1,4 @@
-import 'package:ash_lang/ash_lang.dart';
+import 'package:ash_lang/tokenizer/model/token.dart';
 
 const numbers = "0123456789.";
 const whitespace = " \n\t\r";

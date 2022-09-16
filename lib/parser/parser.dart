@@ -47,10 +47,13 @@ class Parser {
   }
 
   Node primaryStatement() {
-    if (curr.type == TokenType.fnK) {
+    if (curr.type == TokenType.identifier && lookAhead?.type == TokenType.eq) {
+      return assignment();
+    } else if (curr.type == TokenType.fnK) {
       return functionDeclarationStatement();
     }
-    return controlFlowStatement();
+    throw Exception(
+        "Invalid Syntax: Only (Variable and Function) Declaration are allowed in Global Scope");
   }
 
   /// Parses a Function Declaration Statement
@@ -88,14 +91,16 @@ class Parser {
 
   /// Control flow Statement
   Node controlFlowStatement() {
-    if (curr.type == TokenType.lBrace) {
+    if (curr.type == TokenType.identifier && lookAhead?.type == TokenType.eq) {
+      return assignment();
+    } else if (curr.type == TokenType.lBrace) {
       return blockStatement();
     } else if (curr.type == TokenType.ifK) {
       return ifStatement();
     } else if (curr.type == TokenType.whileK) {
       return whileStatement();
     }
-    Node res = valueStatement();
+    Node res = logicalAndOr();
     eat(TokenType.semicolon);
     return res;
   }
@@ -103,20 +108,9 @@ class Parser {
   /// Parses Return Statement
   ReturnNode returnStatement() {
     eat(TokenType.returnK);
-    Node res = valueStatement();
+    Node res = logicalAndOr();
     eat(TokenType.semicolon);
     return ReturnNode(returnNode: res);
-  }
-
-  /// A statement that generates a value
-  Node valueStatement() {
-    if (curr.type == TokenType.identifier && lookAhead?.type == TokenType.eq) {
-      return assignment();
-    } else if (curr.type == TokenType.identifier &&
-        lookAhead?.type == TokenType.lParan) {
-      return functionCall();
-    }
-    return logicalAndOr();
   }
 
   /// Parses a Block { } Statement
@@ -186,8 +180,9 @@ class Parser {
   Node assignment() {
     IdentifierNode left = identifier();
     eat(TokenType.eq);
-    Node right = valueStatement();
-    return AssignmentNode(id: left, right: right);
+    Node right = logicalAndOr();
+    eat(TokenType.semicolon);
+    return AssignmentNode(left: left, right: right);
   }
 
   /// Parses a Function Call
@@ -197,12 +192,12 @@ class Parser {
     List<Node> args = [];
 
     if (curr.type != TokenType.rParan) {
-      args.add(valueStatement());
+      args.add(logicalAndOr());
     }
 
     while (pos < tokens.length && curr.type != TokenType.rParan) {
       eat(TokenType.comma);
-      args.add(valueStatement());
+      args.add(logicalAndOr());
     }
     eat(TokenType.rParan);
     return FunctionCallNode(fnId: fn, args: args);
@@ -284,13 +279,17 @@ class Parser {
   Node term() {
     Node res = factor();
     while (pos < tokens.length &&
-        [TokenType.multiply, TokenType.divide].contains(curr.type)) {
+        [TokenType.multiply, TokenType.divide, TokenType.modulus]
+            .contains(curr.type)) {
       if (curr.type == TokenType.multiply) {
         next();
         res = MultiplyNode(left: res, right: factor());
       } else if (curr.type == TokenType.divide) {
         next();
         res = DivideNode(left: res, right: factor());
+      } else if (curr.type == TokenType.modulus) {
+        next();
+        res = ModulusNode(left: res, right: factor());
       }
     }
     return res;
@@ -312,7 +311,7 @@ class Parser {
   Node atom() {
     if (curr.type == TokenType.lParan) {
       eat(TokenType.lParan);
-      Node res = valueStatement();
+      Node res = logicalAndOr();
       eat(TokenType.rParan);
       return res;
     } else if (curr.type == TokenType.plus) {
@@ -335,6 +334,9 @@ class Parser {
       Node res = BooleanNode(value: curr.value);
       next();
       return res;
+    } else if (curr.type == TokenType.identifier &&
+        lookAhead?.type == TokenType.lParan) {
+      return functionCall();
     } else if (curr.type == TokenType.identifier) {
       Node res = identifier();
       return res;

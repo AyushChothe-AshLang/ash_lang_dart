@@ -9,6 +9,7 @@ enum TokenType {
   minus, // -
   multiply, //\ *
   divide, // /
+  modulus, // /
   power, // ^
   lParan, // (
   rParan, // )
