@@ -4,6 +4,14 @@ import 'package:ash_lang/utils/utils.dart';
 
 class Tokenizer {
   final String code;
+
+  String get lookAhead {
+    if (pos + 1 < code.length) {
+      return code[pos + 1];
+    }
+    return "";
+  }
+
   String get curr => code[pos];
   int pos = 0, line = 1, column = 1;
 
@@ -55,8 +63,40 @@ class Tokenizer {
         value: chars,
         pos: PositionRange(from: start, to: getCurrentPos()),
       );
-      tokens.add(st);
       next();
+      tokens.add(st);
+    } else {
+      tokens.add(ft);
+    }
+  }
+
+  addTripleCharToken(TokenType firsType, TokenType secondType,
+      TokenType thirdType, String chars) {
+    Position start = getCurrentPos();
+    Token ft = Token(
+      type: firsType,
+      value: chars[0],
+      pos: PositionRange(from: start),
+    );
+    next();
+    if (pos < code.length && curr == chars[1]) {
+      Token st = Token(
+        type: secondType,
+        value: chars[0] + chars[1],
+        pos: PositionRange(from: start, to: getCurrentPos()),
+      );
+      next();
+      if (pos < code.length && curr == chars[2]) {
+        Token tt = Token(
+          type: thirdType,
+          value: chars,
+          pos: PositionRange(from: start, to: getCurrentPos()),
+        );
+        next();
+        tokens.add(tt);
+      } else {
+        tokens.add(st);
+      }
     } else {
       tokens.add(ft);
     }
@@ -87,7 +127,17 @@ class Tokenizer {
       } else if (curr == "%") {
         addDoubleCharToken(TokenType.modulus, TokenType.modulusEq, "%=");
       } else if (curr == "^") {
-        addDoubleCharToken(TokenType.power, TokenType.powerEq, "^=");
+        if (lookAhead == "=") {
+          addDoubleCharToken(TokenType.power, TokenType.powerEq, "^=");
+        } else if (lookAhead == "/") {
+          addTripleCharToken(TokenType.power, TokenType.powerDivide,
+              TokenType.powerDivideEq, "^/=");
+        } else {
+          addSingleCharToken(TokenType.power);
+        }
+      } else if (curr == "~") {
+        addTripleCharToken(TokenType.tilde, TokenType.tildeDivide,
+            TokenType.tildeDivideEq, "~/=");
       } else if (curr == "(") {
         addSingleCharToken(TokenType.lParan);
       } else if (curr == ")") {

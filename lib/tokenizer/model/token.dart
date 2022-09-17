@@ -10,12 +10,17 @@ enum TokenType {
   minus, // -
   multiply, //\ *
   divide, // /
+  tildeDivide, // ~/
+  powerDivide, // ^/
   modulus, // %
   power, // ^
+  tilde,
   plusEq, // +=
   minusEq, // -=
   multiplyEq, //\ *=
   divideEq, // /=
+  tildeDivideEq, // ~/=
+  powerDivideEq, // ^/=
   modulusEq, // %=
   powerEq, // ^=
   lParan, // (

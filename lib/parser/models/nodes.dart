@@ -143,7 +143,7 @@ class MultiplyNode extends BinaryOpNumberNode {
 }
 
 class DivideNode extends BinaryOpNumberNode {
-  DivideNode({required super.left, required super.right}) : super(op: '/');
+  DivideNode({required super.left, required super.right, required super.op});
 }
 
 class ModulusNode extends BinaryOpNumberNode {

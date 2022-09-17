@@ -117,42 +117,49 @@ class Interpreter {
   Value walkBinaryOpNode(BinaryOpNode node, Scope scope) {
     String op = node.op;
 
+    dynamic leftId = (node.left as IdentifierNode);
     switch (op) {
       case '=':
         dynamic right = walk(node.right, scope);
-        scope.setSymbol((node.left as IdentifierNode).value, right.value);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '+=':
-        dynamic left = (node.left as IdentifierNode);
-        dynamic right = walk(AddNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+        dynamic right = walk(AddNode(left: leftId, right: node.right), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '-=':
-        dynamic left = (node.left as IdentifierNode);
         dynamic right =
-            walk(SubstractNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+            walk(SubstractNode(left: leftId, right: node.right), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '*=':
-        dynamic left = (node.left as IdentifierNode);
         dynamic right =
-            walk(MultiplyNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+            walk(MultiplyNode(left: leftId, right: node.right), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '/=':
-        dynamic left = (node.left as IdentifierNode);
-        dynamic right = walk(DivideNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+        dynamic right =
+            walk(DivideNode(left: leftId, right: node.right, op: "/"), scope);
+        scope.setSymbol(leftId.value, right.value);
+        return right;
+      case '~/=':
+        dynamic right =
+            walk(DivideNode(left: leftId, right: node.right, op: "~/"), scope);
+        scope.setSymbol(leftId.value, right.value);
+        return right;
+      case '^/=':
+        dynamic right =
+            walk(DivideNode(left: leftId, right: node.right, op: "^/"), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '%=':
-        dynamic left = (node.left as IdentifierNode);
-        dynamic right = walk(ModulusNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+        dynamic right =
+            walk(ModulusNode(left: leftId, right: node.right), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
       case '^=':
-        dynamic left = (node.left as IdentifierNode);
-        dynamic right = walk(PowerNode(left: left, right: node.right), scope);
-        scope.setSymbol(left.value, right.value);
+        dynamic right = walk(PowerNode(left: leftId, right: node.right), scope);
+        scope.setSymbol(leftId.value, right.value);
         return right;
     }
 
@@ -174,6 +181,10 @@ class Interpreter {
         return getCorrectNumbervalue(value: left * right);
       case '/':
         return getCorrectNumbervalue(value: left / right);
+      case '~/':
+        return getCorrectNumbervalue(value: left ~/ right);
+      case '^/':
+        return getCorrectNumbervalue(value: ((left / right) as double).ceil());
       case '%':
         return getCorrectNumbervalue(value: left % right);
       case '^':

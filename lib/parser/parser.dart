@@ -319,18 +319,28 @@ class Parser {
     return res;
   }
 
-  /// Parses Mathematical Expression * /
+  /// Parses Mathematical Expression * / ~/ ^/
   Node term() {
     Node res = factor();
     while (pos < tokens.length &&
-        [TokenType.multiply, TokenType.divide, TokenType.modulus]
-            .contains(curr.type)) {
+        [
+          TokenType.multiply,
+          TokenType.divide,
+          TokenType.tildeDivide,
+          TokenType.powerDivide,
+          TokenType.modulus
+        ].contains(curr.type)) {
       if (curr.type == TokenType.multiply) {
         next();
         res = MultiplyNode(left: res, right: factor());
-      } else if (curr.type == TokenType.divide) {
+      } else if ([
+        TokenType.divide,
+        TokenType.tildeDivide,
+        TokenType.powerDivide
+      ].contains(curr.type)) {
+        String op = curr.value;
         next();
-        res = DivideNode(left: res, right: factor());
+        res = DivideNode(left: res, right: factor(), op: op);
       } else if (curr.type == TokenType.modulus) {
         next();
         res = ModulusNode(left: res, right: factor());

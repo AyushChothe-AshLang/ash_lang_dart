@@ -11,7 +11,9 @@ const assignments = [
   TokenType.multiplyEq,
   TokenType.divideEq,
   TokenType.modulusEq,
-  TokenType.powerEq
+  TokenType.powerEq,
+  TokenType.tildeDivideEq,
+  TokenType.powerDivideEq,
 ];
 
 const keywords = {
