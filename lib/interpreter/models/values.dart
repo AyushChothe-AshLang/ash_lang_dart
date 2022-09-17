@@ -1,9 +1,22 @@
 import 'package:ash_lang/interpreter/models/value.dart';
 
-class NumberValue implements Value {
+abstract class NumberValue implements Value {}
+
+class IntNumberValue implements NumberValue {
+  int value;
+
+  IntNumberValue({
+    required this.value,
+  });
+
+  @override
+  String toString() => "$value";
+}
+
+class DoubleNumberValue implements NumberValue {
   double value;
 
-  NumberValue({
+  DoubleNumberValue({
     required this.value,
   });
 

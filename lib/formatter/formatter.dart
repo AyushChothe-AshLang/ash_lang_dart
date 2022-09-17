@@ -28,9 +28,13 @@ class Formatter {
   String walk(Node node, {required int indent, bool inRHS = false}) {
     String space = indentSpace(indent);
     if (node is AssignmentNode) {
-      return "$space${(node.left as IdentifierNode).value} = ${walk(node.right, indent: indent, inRHS: true)};\n";
+      return "$space${(node.left as IdentifierNode).value} ${node.op} ${walk(node.right, indent: indent, inRHS: true)};\n";
     } else if (node is NumberNode) {
-      return "${node.value}";
+      if (node is IntNumberNode) {
+        return "${node.value}";
+      } else if (node is DoubleNumberNode) {
+        return "${node.value}";
+      }
     } else if (node is StringNode) {
       return "\"${node.value}\"";
     } else if (node is BooleanNode) {

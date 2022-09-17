@@ -1,8 +1,19 @@
 import 'package:ash_lang/parser/models/node.dart';
 
-class NumberNode implements Node {
+class IntNumberNode implements NumberNode {
+  @override
+  int value;
+  IntNumberNode({
+    required this.value,
+  });
+  @override
+  String toString() => "$runtimeType:$value";
+}
+
+class DoubleNumberNode implements NumberNode {
+  @override
   double value;
-  NumberNode({
+  DoubleNumberNode({
     required this.value,
   });
   @override
@@ -10,6 +21,7 @@ class NumberNode implements Node {
 }
 
 class StringNode implements Node {
+  @override
   String value;
   StringNode({
     required this.value,
@@ -19,6 +31,7 @@ class StringNode implements Node {
 }
 
 class BooleanNode implements Node {
+  @override
   bool value;
   BooleanNode({
     required this.value,
@@ -28,6 +41,7 @@ class BooleanNode implements Node {
 }
 
 class IdentifierNode implements Node {
+  @override
   String value;
   IdentifierNode({
     required this.value,
@@ -169,6 +183,10 @@ class EqualityNode extends BinaryOpBooleanNode {
   EqualityNode({required super.left, required super.right}) : super(op: '==');
 }
 
+class NotEqualsNode extends BinaryOpBooleanNode {
+  NotEqualsNode({required super.left, required super.right}) : super(op: '!=');
+}
+
 class LogicalAndNode extends BinaryOpBooleanNode {
   LogicalAndNode({required super.left, required super.right}) : super(op: '&');
 }
@@ -178,8 +196,11 @@ class LogicalOrNode extends BinaryOpBooleanNode {
 }
 
 class AssignmentNode extends BinaryOpNumberNode {
-  AssignmentNode({required IdentifierNode super.left, required super.right})
-      : super(op: '=');
+  AssignmentNode({
+    required IdentifierNode super.left,
+    required super.right,
+    required super.op,
+  });
 }
 
 class EOFNode implements Node {}

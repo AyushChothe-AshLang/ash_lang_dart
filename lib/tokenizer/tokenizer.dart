@@ -76,19 +76,18 @@ class Tokenizer {
         parseIdentifier();
       } else if (curr == '"' || curr == "'") {
         parseStringLiteral(curr);
-      } else if (curr == '"') {
       } else if (curr == "+") {
-        addSingleCharToken(TokenType.plus);
+        addDoubleCharToken(TokenType.plus, TokenType.plusEq, "+=");
       } else if (curr == "-") {
-        addSingleCharToken(TokenType.minus);
+        addDoubleCharToken(TokenType.minus, TokenType.minusEq, "-=");
       } else if (curr == "*") {
-        addSingleCharToken(TokenType.multiply);
+        addDoubleCharToken(TokenType.multiply, TokenType.multiplyEq, "*=");
       } else if (curr == "/") {
-        addSingleCharToken(TokenType.divide);
+        addDoubleCharToken(TokenType.divide, TokenType.divideEq, "/=");
       } else if (curr == "%") {
-        addSingleCharToken(TokenType.modulus);
+        addDoubleCharToken(TokenType.modulus, TokenType.modulusEq, "%=");
       } else if (curr == "^") {
-        addSingleCharToken(TokenType.power);
+        addDoubleCharToken(TokenType.power, TokenType.powerEq, "^=");
       } else if (curr == "(") {
         addSingleCharToken(TokenType.lParan);
       } else if (curr == ")") {
@@ -101,6 +100,8 @@ class Tokenizer {
         addSingleCharToken(TokenType.and);
       } else if (curr == "|") {
         addSingleCharToken(TokenType.or);
+      } else if (curr == "!") {
+        addDoubleCharToken(TokenType.not, TokenType.neq, "!=");
       } else if (curr == ",") {
         addSingleCharToken(TokenType.comma);
       } else if (curr == ":") {
@@ -142,8 +143,8 @@ class Tokenizer {
 
     tokens.add(
       Token(
-        type: TokenType.number,
-        value: double.parse(num),
+        type: dot == 0 ? TokenType.int : TokenType.double,
+        value: dot == 0 ? int.parse(num) : double.parse(num),
         pos: PositionRange(from: from, to: to),
       ),
     );

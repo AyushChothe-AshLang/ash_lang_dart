@@ -3,6 +3,8 @@ abstract class Node {
   String toString() => "$runtimeType";
 }
 
+abstract class NumberNode implements Node {}
+
 abstract class BinaryOpNode implements Node {
   Node left, right;
   String op;

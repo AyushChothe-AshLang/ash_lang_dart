@@ -4,6 +4,16 @@ const numbers = "0123456789.";
 const whitespace = " \n\t\r";
 final chars = RegExp(r"\w");
 
+const assignments = [
+  TokenType.eq,
+  TokenType.plusEq,
+  TokenType.minusEq,
+  TokenType.multiplyEq,
+  TokenType.divideEq,
+  TokenType.modulusEq,
+  TokenType.powerEq
+];
+
 const keywords = {
   "while": TokenType.whileK,
   "if": TokenType.ifK,

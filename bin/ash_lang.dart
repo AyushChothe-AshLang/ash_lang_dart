@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ash_lang/ash_lang.dart';
 
 void main(List<String> args) {
+  // args = ["run", "./bin/code.ash"];
   if (args.isNotEmpty) {
     if (!args.last.endsWith('.ash')) {
       print("The last argument should be a '.ash' file");

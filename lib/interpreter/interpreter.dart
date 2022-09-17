@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ash_lang/interpreter/models/scope.dart';
@@ -14,10 +15,20 @@ class Interpreter {
 
   Map<String, Function> inbuiltFunctions = {
     'print': print,
+    'input': ([String msg = ""]) {
+      stdout.write(msg);
+      return stdin.readLineSync();
+    },
     'min': min,
     'max': max,
-    'int': (String i) => double.parse(i),
-    'str': (dynamic i) => i.toString()
+    'int': (String i) => int.parse(i),
+    'double': (String i) => double.parse(i),
+    'str': (dynamic i) => i.toString(),
+    'len': (String s) => s.length,
+    'split': (String s, String p) => s.split(p),
+    'join': (List<String> s, String p) => s.join(p),
+    'upper': (String s) => s.toUpperCase(),
+    'lower': (String s) => s.toLowerCase(),
   };
 
   Value? run() {
@@ -59,8 +70,8 @@ class Interpreter {
     return NullValue();
   }
 
-  NumberValue walkNumberNode(NumberNode node, Scope scope) {
-    return NumberValue(value: node.value);
+  Value walkNumberNode(node, Scope scope) {
+    return getCorrectValueType(node.value);
   }
 
   StringValue walkStringNode(StringNode node, Scope scope) {
@@ -75,13 +86,13 @@ class Interpreter {
     return ReturnValue(value: walk(node.returnNode, scope).value);
   }
 
-  NumberValue walkUnaryNode(UnaryNode node, Scope scope) {
+  Value walkUnaryNode(UnaryNode node, Scope scope) {
     String op = node.op;
     switch (op) {
       case '+':
-        return NumberValue(value: (walk(node, scope) as NumberNode).value);
+        return getCorrectValueType((walk(node, scope)).value);
       case '-':
-        return NumberValue(value: -(walk(node, scope) as NumberNode).value);
+        return getCorrectValueType(-(walk(node, scope)).value);
     }
     throw Exception("Runtime Error!");
   }
@@ -101,42 +112,75 @@ class Interpreter {
   Value walkBinaryOpNode(BinaryOpNode node, Scope scope) {
     String op = node.op;
 
-    if (op == '=') {
-      dynamic right = walk(node.right, scope);
-      scope.setSymbol((node.left as IdentifierNode).value, right.value);
-      return right;
+    switch (op) {
+      case '=':
+        dynamic right = walk(node.right, scope);
+        scope.setSymbol((node.left as IdentifierNode).value, right.value);
+        return right;
+      case '+=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right = walk(AddNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
+      case '-=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right =
+            walk(SubstractNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
+      case '*=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right =
+            walk(MultiplyNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
+      case '/=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right = walk(DivideNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
+      case '%=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right = walk(ModulusNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
+      case '^=':
+        dynamic left = (node.left as IdentifierNode);
+        dynamic right = walk(PowerNode(left: left, right: node.right), scope);
+        scope.setSymbol(left.value, right.value);
+        return right;
     }
 
     dynamic left = walk(node.left, scope).value;
     dynamic right = walk(node.right, scope).value;
     switch (op) {
       case '+':
-        if (left.runtimeType == right.runtimeType) {
-          if (left is double) {
-            return NumberValue(value: left + right);
-          } else if (left is String) {
-            return StringValue(value: left + right);
-          }
+        if ([int, double].contains(left.runtimeType) &&
+            [int, double].contains(right.runtimeType)) {
+          return getCorrectNumbervalue(value: left + right);
+        } else if (right is String && left is String) {
+          return StringValue(value: left + right);
         } else {
           throw Exception("Runtime Error: '$op' used on invalid operands!");
         }
-        break;
       case '-':
-        return NumberValue(value: left - right);
+        return getCorrectNumbervalue(value: left - right);
       case '*':
-        return NumberValue(value: left * right);
+        return getCorrectNumbervalue(value: left * right);
       case '/':
-        return NumberValue(value: left / right);
+        return getCorrectNumbervalue(value: left / right);
       case '%':
-        return NumberValue(value: left % right);
+        return getCorrectNumbervalue(value: left % right);
       case '^':
-        return NumberValue(value: pow(left, right) as double);
+        return getCorrectNumbervalue(value: pow(left, right) as double);
       case '&':
         return BooleanValue(value: left && right);
       case '|':
         return BooleanValue(value: left || right);
       case '==':
         return BooleanValue(value: left == right);
+      case '!=':
+        return BooleanValue(value: left != right);
       case '<':
         return BooleanValue(value: left < right);
       case '<=':
@@ -225,11 +269,20 @@ class Interpreter {
 
   Value getCorrectValueType(dynamic res) {
     if (res is num) {
-      return NumberValue(value: res as double);
+      return getCorrectNumbervalue(value: res);
     } else if (res is bool) {
       return BooleanValue(value: res);
     } else if (res is String) {
       return StringValue(value: res);
+    }
+    return NullValue();
+  }
+
+  Value getCorrectNumbervalue({required dynamic value}) {
+    if (value is int) {
+      return IntNumberValue(value: value);
+    } else if (value is double) {
+      return DoubleNumberValue(value: value);
     }
     return NullValue();
   }

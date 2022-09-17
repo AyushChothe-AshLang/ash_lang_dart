@@ -1,6 +1,7 @@
 import 'package:ash_lang/parser/models/node.dart';
 import 'package:ash_lang/parser/models/nodes.dart';
 import 'package:ash_lang/tokenizer/model/token.dart';
+import 'package:ash_lang/utils/utils.dart';
 
 class Parser {
   List<Token> tokens;
@@ -35,6 +36,17 @@ class Parser {
     }
   }
 
+  void eatAnyIn(List<TokenType> types) {
+    for (TokenType type in types) {
+      if (curr.type == type) {
+        next();
+        return;
+      }
+    }
+    throw Exception(
+        "Invalid Syntax ${curr.getPos()}: Expected ${types.map((e) => '\'${e.name}\'').join(',')} found '${curr.type.name}'");
+  }
+
   /// Starts the Parsing
   Node parse() {
     Node ast = EOFNode();
@@ -47,7 +59,8 @@ class Parser {
   }
 
   Node primaryStatement() {
-    if (curr.type == TokenType.identifier && lookAhead?.type == TokenType.eq) {
+    if (curr.type == TokenType.identifier &&
+        assignments.contains(lookAhead?.type)) {
       return assignment();
     } else if (curr.type == TokenType.fnK) {
       return functionDeclarationStatement();
@@ -91,7 +104,8 @@ class Parser {
 
   /// Control flow Statement
   Node controlFlowStatement() {
-    if (curr.type == TokenType.identifier && lookAhead?.type == TokenType.eq) {
+    if (curr.type == TokenType.identifier &&
+        assignments.contains(lookAhead?.type)) {
       return assignment();
     } else if (curr.type == TokenType.lBrace) {
       return blockStatement();
@@ -99,6 +113,8 @@ class Parser {
       return ifStatement();
     } else if (curr.type == TokenType.whileK) {
       return whileStatement();
+    } else if (curr.type == TokenType.returnK) {
+      return returnStatement();
     }
     Node res = logicalAndOr();
     eat(TokenType.semicolon);
@@ -118,13 +134,7 @@ class Parser {
     List<Node> statements = [];
     eat(TokenType.lBrace);
     while (curr.type != TokenType.rBrace) {
-      Node res;
-      if (curr.type == TokenType.returnK) {
-        res = returnStatement();
-      } else {
-        res = controlFlowStatement();
-      }
-      statements.add(res);
+      statements.add(controlFlowStatement());
     }
     eat(TokenType.rBrace);
     return BlockStatementNode(statements: statements);
@@ -179,10 +189,11 @@ class Parser {
   /// Parses a Assignment Statement
   Node assignment() {
     IdentifierNode left = identifier();
-    eat(TokenType.eq);
+    String op = curr.value;
+    eatAnyIn(assignments);
     Node right = logicalAndOr();
     eat(TokenType.semicolon);
-    return AssignmentNode(left: left, right: right);
+    return AssignmentNode(left: left, right: right, op: op);
   }
 
   /// Parses a Function Call
@@ -226,13 +237,16 @@ class Parser {
     return res;
   }
 
-  /// Parses ==
+  /// Parses == !=
   Node equality() {
     Node res = comparison();
 
     if (curr.type == TokenType.deq) {
       next();
       res = EqualityNode(left: res, right: comparison());
+    } else if (curr.type == TokenType.neq) {
+      next();
+      res = NotEqualsNode(left: res, right: comparison());
     }
 
     return res;
@@ -322,8 +336,12 @@ class Parser {
       next();
       Node res = atom();
       return UnaryMinus(node: res);
-    } else if (curr.type == TokenType.number) {
-      Node res = NumberNode(value: curr.value);
+    } else if (curr.type == TokenType.int) {
+      Node res = IntNumberNode(value: curr.value);
+      next();
+      return res;
+    } else if (curr.type == TokenType.double) {
+      Node res = DoubleNumberNode(value: curr.value);
       next();
       return res;
     } else if (curr.type == TokenType.stringLiteral) {

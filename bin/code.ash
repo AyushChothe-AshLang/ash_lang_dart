@@ -10,7 +10,7 @@ fn fizzBuzz(n){
     } else {
       print(i);
     }
-    i=i+1;
+    i+=1;
   }
 }
 

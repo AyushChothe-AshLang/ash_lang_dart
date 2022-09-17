@@ -1,21 +1,29 @@
 import 'package:ash_lang/tokenizer/model/position.dart';
 
 enum TokenType {
-  number, // 1234567890.
-  stringLiteral, // 1234567890.
-  booleanLiteral, // 1234567890.
-  identifier, // Variable
+  int, // 1234567890
+  double, // 1234567890.1234
+  stringLiteral, // "Ash" 'Ash'
+  booleanLiteral, // true or flase
+  identifier, // Variable or Function
   plus, // +
   minus, // -
   multiply, //\ *
   divide, // /
-  modulus, // /
+  modulus, // %
   power, // ^
+  plusEq, // +=
+  minusEq, // -=
+  multiplyEq, //\ *=
+  divideEq, // /=
+  modulusEq, // %=
+  powerEq, // ^=
   lParan, // (
   rParan, // )
   lBrace, // {
   rBrace, // }
   eq, // =
+  neq, // \!=
   deq, // ==
   lt, // <
   gt, // >
@@ -23,6 +31,7 @@ enum TokenType {
   gte, // >=
   and, // &
   or, // |
+  not, // \!
   comma, // ,
   colon, // :
   semicolon, // ;
