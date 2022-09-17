@@ -17,8 +17,9 @@ class Parser {
 
   Parser({required this.tokens});
 
-  Exception raiseInvalidSyntax() {
-    return Exception("Invalid Syntax ${curr.getPos()}: '${curr.value}'");
+  Exception raiseInvalidSyntax(String message) {
+    return Exception(
+        "Invalid Syntax ${curr.getPos()}: '${curr.value}' $message");
   }
 
   void next() {
@@ -65,8 +66,8 @@ class Parser {
     } else if (curr.type == TokenType.fnK) {
       return functionDeclarationStatement();
     }
-    throw Exception(
-        "Invalid Syntax: Only (Variable and Function) Declaration are allowed in Global Scope");
+    throw raiseInvalidSyntax(
+        "Only (Variable and Function) Declaration are allowed in Global Scope");
   }
 
   /// Parses a Function Declaration Statement
@@ -103,14 +104,18 @@ class Parser {
   }
 
   /// Control flow Statement
-  Node controlFlowStatement() {
+  Node controlFlowStatement({bool isInLoop = false}) {
     if (curr.type == TokenType.identifier &&
         assignments.contains(lookAhead?.type)) {
       return assignment();
     } else if (curr.type == TokenType.lBrace) {
-      return blockStatement();
+      return blockStatement(isInLoop: isInLoop);
     } else if (curr.type == TokenType.ifK) {
-      return ifStatement();
+      return ifStatement(isInLoop: isInLoop);
+    } else if (curr.type == TokenType.breakK) {
+      return breakStatement(isInLoop: isInLoop);
+    } else if (curr.type == TokenType.continueK) {
+      return continueStatement(isInLoop: isInLoop);
     } else if (curr.type == TokenType.whileK) {
       return whileStatement();
     } else if (curr.type == TokenType.returnK) {
@@ -124,17 +129,42 @@ class Parser {
   /// Parses Return Statement
   ReturnNode returnStatement() {
     eat(TokenType.returnK);
+    if (curr.type == TokenType.semicolon) {
+      eat(TokenType.semicolon);
+      return ReturnNode(returnNode: NullNode());
+    }
     Node res = logicalAndOr();
     eat(TokenType.semicolon);
     return ReturnNode(returnNode: res);
   }
 
+  /// Parses Return Statement
+  BreakNode breakStatement({bool isInLoop = false}) {
+    if (!isInLoop) {
+      throw raiseInvalidSyntax(
+          "is not allowed outside the loop use 'return' instead!");
+    }
+    eat(TokenType.breakK);
+    eat(TokenType.semicolon);
+    return BreakNode();
+  }
+
+  /// Parses Return Statement
+  ContinueNode continueStatement({bool isInLoop = false}) {
+    if (!isInLoop) {
+      throw raiseInvalidSyntax("is not allowed outside the loop!");
+    }
+    eat(TokenType.continueK);
+    eat(TokenType.semicolon);
+    return ContinueNode();
+  }
+
   /// Parses a Block { } Statement
-  BlockStatementNode blockStatement() {
+  BlockStatementNode blockStatement({bool isInLoop = false}) {
     List<Node> statements = [];
     eat(TokenType.lBrace);
     while (curr.type != TokenType.rBrace) {
-      statements.add(controlFlowStatement());
+      statements.add(controlFlowStatement(isInLoop: isInLoop));
     }
     eat(TokenType.rBrace);
     return BlockStatementNode(statements: statements);
@@ -146,18 +176,18 @@ class Parser {
     eat(TokenType.lParan);
     BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
     eat(TokenType.rParan);
-    BlockStatementNode block = blockStatement();
+    BlockStatementNode block = blockStatement(isInLoop: true);
 
     return WhileLoopNode(condition: condition, block: block);
   }
 
-  IfStatementNode ifStatement() {
+  IfStatementNode ifStatement({bool isInLoop = false}) {
     // Parse if condition
     eat(TokenType.ifK);
     eat(TokenType.lParan);
     BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
     eat(TokenType.rParan);
-    BlockStatementNode trueBlock = blockStatement();
+    BlockStatementNode trueBlock = blockStatement(isInLoop: isInLoop);
 
     // Parse elif statements
     List<ElifStatementNode> elifBlocks = [];
@@ -166,7 +196,7 @@ class Parser {
       eat(TokenType.lParan);
       BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
       eat(TokenType.rParan);
-      BlockStatementNode trueBlock = blockStatement();
+      BlockStatementNode trueBlock = blockStatement(isInLoop: isInLoop);
       elifBlocks
           .add(ElifStatementNode(condition: condition, trueBlock: trueBlock));
     }
@@ -175,7 +205,7 @@ class Parser {
     BlockStatementNode? elseBlock;
     if (curr.type == TokenType.elseK) {
       eat(TokenType.elseK);
-      elseBlock = blockStatement();
+      elseBlock = blockStatement(isInLoop: isInLoop);
     }
 
     return IfStatementNode(
@@ -359,7 +389,7 @@ class Parser {
       Node res = identifier();
       return res;
     } else {
-      throw raiseInvalidSyntax();
+      throw raiseInvalidSyntax("");
     }
   }
 }

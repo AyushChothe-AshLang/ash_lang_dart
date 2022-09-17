@@ -55,3 +55,7 @@ class ReturnValue implements Value {
 class NullValue implements Value {
   final dynamic value = null;
 }
+
+class BreakValue implements Value {}
+
+class ContinueValue implements Value {}

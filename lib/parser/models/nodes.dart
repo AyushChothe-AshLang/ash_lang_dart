@@ -203,4 +203,10 @@ class AssignmentNode extends BinaryOpNumberNode {
   });
 }
 
+class BreakNode implements Node {}
+
+class ContinueNode implements Node {}
+
+class NullNode implements Node {}
+
 class EOFNode implements Node {}

@@ -21,8 +21,9 @@ class Interpreter {
     },
     'min': min,
     'max': max,
-    'int': (String i) => int.parse(i),
-    'double': (String i) => double.parse(i),
+    'int': (dynamic i) => i is double ? i.toInt() : int.parse(i.toString()),
+    'double': (dynamic i) =>
+        i is int ? i.toDouble() : double.parse(i.toString()),
     'str': (dynamic i) => i.toString(),
     'len': (String s) => s.length,
     'split': (String s, String p) => s.split(p),
@@ -52,6 +53,10 @@ class Interpreter {
       return walkUnaryNode(node, scope);
     } else if (node is ReturnNode) {
       return walkReturnNode(node, scope);
+    } else if (node is BreakNode) {
+      return BreakValue();
+    } else if (node is ContinueNode) {
+      return ContinueValue();
     } else if (node is IdentifierNode) {
       return getCorrectValueType(scope.getSymbol(node.value));
     } else if (node is BinaryOpNode) {
@@ -102,7 +107,7 @@ class Interpreter {
     Scope localScope = Scope(parent: scope);
     for (Node n in node.statements) {
       Value val = walk(n, createLocalScope ? localScope : scope);
-      if (val is ReturnValue) {
+      if ([ReturnValue, BreakValue, ContinueValue].contains(val.runtimeType)) {
         return val;
       }
     }
@@ -228,6 +233,10 @@ class Interpreter {
           createLocalScope: false);
       if (res is ReturnValue) {
         return res;
+      } else if (res is BreakValue) {
+        break;
+      } else if (res is ContinueValue) {
+        continue;
       }
     }
     return NullValue();
