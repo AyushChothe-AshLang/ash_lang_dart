@@ -1,6 +1,6 @@
 import 'package:ash_lang/parser/models/node.dart';
 
-class IntNumberNode implements NumberNode {
+class IntNumberNode implements NumberNode<int> {
   @override
   int value;
   IntNumberNode({
@@ -10,7 +10,7 @@ class IntNumberNode implements NumberNode {
   String toString() => "$runtimeType:$value";
 }
 
-class DoubleNumberNode implements NumberNode {
+class DoubleNumberNode implements NumberNode<double> {
   @override
   double value;
   DoubleNumberNode({
@@ -20,7 +20,7 @@ class DoubleNumberNode implements NumberNode {
   String toString() => "$runtimeType:$value";
 }
 
-class StringNode implements Node {
+class StringNode implements Node<String> {
   @override
   String value;
   StringNode({
@@ -30,7 +30,7 @@ class StringNode implements Node {
   String toString() => "$runtimeType:$value";
 }
 
-class BooleanNode implements Node {
+class BooleanNode implements Node<bool> {
   @override
   bool value;
   BooleanNode({
@@ -40,7 +40,7 @@ class BooleanNode implements Node {
   String toString() => "$runtimeType:$value";
 }
 
-class IdentifierNode implements Node {
+class IdentifierNode implements Node<String> {
   @override
   String value;
   IdentifierNode({
@@ -58,6 +58,9 @@ class BlockStatementNode implements Node {
   });
   @override
   String toString() => "$statements";
+
+  @override
+  dynamic value;
 }
 
 class FunctionDeclarationNode implements Node {
@@ -72,6 +75,9 @@ class FunctionDeclarationNode implements Node {
   });
   @override
   String toString() => "fn $fnId(${params.join(',')}){$body}";
+
+  @override
+  dynamic value;
 }
 
 class FunctionCallNode implements Node {
@@ -83,12 +89,16 @@ class FunctionCallNode implements Node {
   });
   @override
   String toString() => "$fnId($args)";
+
+  @override
+  dynamic value;
 }
 
-class ReturnNode implements Node {
-  Node returnNode;
+class ReturnNode implements Node<Node> {
+  @override
+  Node value;
   ReturnNode({
-    required this.returnNode,
+    required this.value,
   });
 }
 
@@ -101,6 +111,9 @@ class WhileLoopNode implements Node {
   });
   @override
   String toString() => "while($condition){$block}";
+
+  @override
+  dynamic value;
 }
 
 class IfStatementNode implements Node {
@@ -117,6 +130,9 @@ class IfStatementNode implements Node {
   @override
   String toString() =>
       "if($condition){$trueBlock}${elifBlocks.join('')}else{$elseBlock}";
+
+  @override
+  dynamic value;
 }
 
 class ElifStatementNode implements Node {
@@ -128,14 +144,17 @@ class ElifStatementNode implements Node {
   });
   @override
   String toString() => "elif($condition){$trueBlock}";
+
+  @override
+  dynamic value;
 }
 
 class AddNode extends BinaryOpNumberNode {
   AddNode({required super.left, required super.right}) : super(op: '+');
 }
 
-class SubstractNode extends BinaryOpNumberNode {
-  SubstractNode({required super.left, required super.right}) : super(op: '-');
+class SubtractNode extends BinaryOpNumberNode {
+  SubtractNode({required super.left, required super.right}) : super(op: '-');
 }
 
 class MultiplyNode extends BinaryOpNumberNode {
@@ -155,11 +174,11 @@ class PowerNode extends BinaryOpNumberNode {
 }
 
 class UnaryPlus extends UnaryNode {
-  UnaryPlus({required super.node}) : super(op: '+');
+  UnaryPlus({required super.value}) : super(op: '+');
 }
 
 class UnaryMinus extends UnaryNode {
-  UnaryMinus({required super.node}) : super(op: '-');
+  UnaryMinus({required super.value}) : super(op: '-');
 }
 
 class LessThanNode extends BinaryOpBooleanNode {
@@ -195,7 +214,19 @@ class LogicalOrNode extends BinaryOpBooleanNode {
   LogicalOrNode({required super.left, required super.right}) : super(op: '|');
 }
 
-class AssignmentNode extends BinaryOpNumberNode {
+class DeclarationNode extends BinaryOpNode {
+  DeclarationNode({
+    required IdentifierNode super.left,
+    required super.right,
+  }) : super(op: '=');
+}
+
+class MultiDeclarationNode extends Node {
+  List<DeclarationNode> declarations;
+  MultiDeclarationNode({required this.declarations});
+}
+
+class AssignmentNode extends BinaryOpNode {
   AssignmentNode({
     required IdentifierNode super.left,
     required super.right,
@@ -203,10 +234,22 @@ class AssignmentNode extends BinaryOpNumberNode {
   });
 }
 
-class BreakNode implements Node {}
+class BreakNode implements Node {
+  @override
+  dynamic value;
+}
 
-class ContinueNode implements Node {}
+class ContinueNode implements Node {
+  @override
+  dynamic value;
+}
 
-class NullNode implements Node {}
+class NullNode implements Node {
+  @override
+  dynamic value;
+}
 
-class EOFNode implements Node {}
+class EOFNode implements Node {
+  @override
+  dynamic value;
+}

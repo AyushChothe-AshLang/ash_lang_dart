@@ -47,6 +47,7 @@ enum TokenType {
   elseK, // else
   elifK, // elif
   fnK, // fn
+  letK, // let
   breakK, // break
   continueK, // continue
   returnK, // return

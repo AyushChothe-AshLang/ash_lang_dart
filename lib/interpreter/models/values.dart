@@ -1,8 +1,9 @@
 import 'package:ash_lang/interpreter/models/value.dart';
 
-abstract class NumberValue implements Value {}
+abstract class NumberValue<T extends num> implements Value<T> {}
 
-class IntNumberValue implements NumberValue {
+class IntNumberValue implements NumberValue<int> {
+  @override
   int value;
 
   IntNumberValue({
@@ -13,7 +14,8 @@ class IntNumberValue implements NumberValue {
   String toString() => "$value";
 }
 
-class DoubleNumberValue implements NumberValue {
+class DoubleNumberValue implements NumberValue<double> {
+  @override
   double value;
 
   DoubleNumberValue({
@@ -24,7 +26,8 @@ class DoubleNumberValue implements NumberValue {
   String toString() => "$value";
 }
 
-class StringValue implements Value {
+class StringValue implements Value<String> {
+  @override
   String value;
 
   StringValue({
@@ -35,7 +38,8 @@ class StringValue implements Value {
   String toString() => value;
 }
 
-class BooleanValue implements Value {
+class BooleanValue implements Value<bool> {
+  @override
   bool value;
 
   BooleanValue({
@@ -46,6 +50,7 @@ class BooleanValue implements Value {
 }
 
 class ReturnValue implements Value {
+  @override
   dynamic value;
   ReturnValue({
     required this.value,
@@ -53,9 +58,16 @@ class ReturnValue implements Value {
 }
 
 class NullValue implements Value {
-  final dynamic value = null;
+  @override
+  dynamic value;
 }
 
-class BreakValue implements Value {}
+class BreakValue implements Value {
+  @override
+  dynamic value;
+}
 
-class ContinueValue implements Value {}
+class ContinueValue implements Value {
+  @override
+  dynamic value;
+}

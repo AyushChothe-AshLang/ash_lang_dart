@@ -10,27 +10,25 @@ class Scope {
   });
 
   void setSymbol(String key, dynamic value) {
-    if (symbolTable.containsKey(key) &&
-        parent != null &&
-        symbolTable[key]!.isParentScope) {
-      parent!.setSymbol(key, value);
+    if (symbolTable.containsKey(key)) {
+      symbolTable[key]!.value = value;
+    } else if (parent != null) {
+      return parent!.setSymbol(key, value);
     } else {
-      symbolTable[key] =
-          ScopeSymbol(id: key, value: value, isParentScope: false);
+      throw Exception("Runtime Exception: Identifier '$key' Not Found!");
     }
   }
 
   dynamic getSymbol(String key) {
     if (symbolTable.containsKey(key)) {
-      if (symbolTable[key]!.isParentScope) {
-        return parent!.getSymbol(key);
-      } else {
-        return symbolTable[key]!.value;
-      }
+      return symbolTable[key]!.value;
     } else if (parent != null) {
-      symbolTable[key] = ScopeSymbol(id: key, isParentScope: true);
       return parent!.getSymbol(key);
     }
     throw Exception("Runtime Exception: Identifier '$key' Not Found!");
+  }
+
+  void declareSymbol(String key, dynamic value) {
+    symbolTable[key] = ScopeSymbol(id: key, value: value);
   }
 }

@@ -14,7 +14,8 @@ class Interpreter {
   Scope globalScope = Scope();
 
   Map<String, Function> inbuiltFunctions = {
-    'print': print,
+    'print': (dynamic s) => stdout.write(s),
+    'println': (dynamic s) => stdout.writeln(s),
     'input': ([String msg = ""]) {
       stdout.write(msg);
       return stdin.readLineSync();
@@ -25,6 +26,7 @@ class Interpreter {
     'double': (dynamic i) =>
         i is int ? i.toDouble() : double.parse(i.toString()),
     'str': (dynamic i) => i.toString(),
+    'chr': (int i) => String.fromCharCode(i),
     'len': (String s) => s.length,
     'split': (String s, String p) => s.split(p),
     'join': (List<String> s, String p) => s.join(p),
@@ -42,7 +44,7 @@ class Interpreter {
     return NullValue();
   }
 
-  walk(Node node, Scope scope) {
+  Value walk(Node node, Scope scope) {
     if (node is NumberNode) {
       return walkNumberNode(node, scope);
     } else if (node is StringNode) {
@@ -69,6 +71,8 @@ class Interpreter {
       return walkFunctionDeclarationNode(node, scope);
     } else if (node is FunctionCallNode) {
       return walkFunctionCallNode(node, scope);
+    } else if (node is MultiDeclarationNode) {
+      return walkMultiDeclarationNode(node, scope);
     } else if (node is BlockStatementNode) {
       return walkBlockStatementNode(node, scope);
     }
@@ -88,7 +92,7 @@ class Interpreter {
   }
 
   ReturnValue walkReturnNode(ReturnNode node, Scope scope) {
-    return ReturnValue(value: walk(node.returnNode, scope).value);
+    return ReturnValue(value: walk(node.value, scope).value);
   }
 
   Value walkUnaryNode(UnaryNode node, Scope scope) {
@@ -117,7 +121,7 @@ class Interpreter {
   Value walkBinaryOpNode(BinaryOpNode node, Scope scope) {
     String op = node.op;
 
-    dynamic leftId = (node.left as IdentifierNode);
+    dynamic leftId = (node.left);
     switch (op) {
       case '=':
         dynamic right = walk(node.right, scope);
@@ -129,7 +133,7 @@ class Interpreter {
         return right;
       case '-=':
         dynamic right =
-            walk(SubstractNode(left: leftId, right: node.right), scope);
+            walk(SubtractNode(left: leftId, right: node.right), scope);
         scope.setSymbol(leftId.value, right.value);
         return right;
       case '*=':
@@ -169,26 +173,26 @@ class Interpreter {
       case '+':
         if ([int, double].contains(left.runtimeType) &&
             [int, double].contains(right.runtimeType)) {
-          return getCorrectNumbervalue(value: left + right);
+          return getCorrectNumberValue(value: left + right);
         } else if (right is String && left is String) {
           return StringValue(value: left + right);
         } else {
           throw Exception("Runtime Error: '$op' used on invalid operands!");
         }
       case '-':
-        return getCorrectNumbervalue(value: left - right);
+        return getCorrectNumberValue(value: left - right);
       case '*':
-        return getCorrectNumbervalue(value: left * right);
+        return getCorrectNumberValue(value: left * right);
       case '/':
-        return getCorrectNumbervalue(value: left / right);
+        return getCorrectNumberValue(value: left / right);
       case '~/':
-        return getCorrectNumbervalue(value: left ~/ right);
+        return getCorrectNumberValue(value: left ~/ right);
       case '^/':
-        return getCorrectNumbervalue(value: ((left / right) as double).ceil());
+        return getCorrectNumberValue(value: ((left / right) as double).ceil());
       case '%':
-        return getCorrectNumbervalue(value: left % right);
+        return getCorrectNumberValue(value: left % right);
       case '^':
-        return getCorrectNumbervalue(value: pow(left, right) as double);
+        return getCorrectNumberValue(value: pow(left, right));
       case '&':
         return BooleanValue(value: left && right);
       case '|':
@@ -208,7 +212,6 @@ class Interpreter {
       default:
         throw Exception("Runtime Error!");
     }
-    return NullValue();
   }
 
   Value walkIfStatementNode(IfStatementNode node, Scope scope) {
@@ -253,8 +256,15 @@ class Interpreter {
     return NullValue();
   }
 
+  Value walkMultiDeclarationNode(MultiDeclarationNode node, Scope scope) {
+    for (DeclarationNode dec in node.declarations) {
+      scope.declareSymbol(dec.left.value, walk(dec.right, scope).value);
+    }
+    return NullValue();
+  }
+
   Value walkFunctionDeclarationNode(FunctionDeclarationNode node, Scope scope) {
-    scope.setSymbol(node.fnId.value, node);
+    scope.declareSymbol(node.fnId.value, node);
     return NullValue();
   }
 
@@ -274,14 +284,18 @@ class Interpreter {
         }
         Scope localScope = Scope(parent: scope);
         for (int i = 0; i < params.length; i++) {
-          localScope.setSymbol(
+          localScope.declareSymbol(
               params[i].value, walk(node.args[i], scope).value);
         }
-        return walkBlockStatementNode(
+        Value res = walkBlockStatementNode(
           fn.body,
           localScope,
           createLocalScope: false,
         );
+        if (res is ReturnValue) {
+          return getCorrectValueType(res.value);
+        }
+        return res;
       }
     }
     throw Exception("Runtime Error: Function ${node.fnId.value} Not Found!");
@@ -289,7 +303,7 @@ class Interpreter {
 
   Value getCorrectValueType(dynamic res) {
     if (res is num) {
-      return getCorrectNumbervalue(value: res);
+      return getCorrectNumberValue(value: res);
     } else if (res is bool) {
       return BooleanValue(value: res);
     } else if (res is String) {
@@ -298,7 +312,7 @@ class Interpreter {
     return NullValue();
   }
 
-  Value getCorrectNumbervalue({required dynamic value}) {
+  Value getCorrectNumberValue({required dynamic value}) {
     if (value is int) {
       return IntNumberValue(value: value);
     } else if (value is double) {

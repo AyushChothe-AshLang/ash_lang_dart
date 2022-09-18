@@ -40,11 +40,11 @@ class Formatter {
     } else if (node is BooleanNode) {
       return "${node.value}";
     } else if (node is UnaryNode) {
-      return "${node.op}${walk(node.node, indent: indent)}";
+      return "${node.op}${walk(node.value, indent: indent)}";
     } else if (node is IdentifierNode) {
       return node.value;
     } else if (node is ReturnNode) {
-      return "${space}return ${walk(node.returnNode, indent: indent)};\n";
+      return "${space}return ${walk(node.value, indent: indent)};\n";
     } else if (node is BinaryOpNode) {
       return "(${walk(node.left, indent: indent)} ${node.op} ${walk(node.right, indent: indent, inRHS: true)})";
     } else if (node is IfStatementNode) {

@@ -60,7 +60,9 @@ class Parser {
   }
 
   Node primaryStatement() {
-    if (curr.type == TokenType.identifier &&
+    if (curr.type == TokenType.letK) {
+      return declaration();
+    } else if (curr.type == TokenType.identifier &&
         assignments.contains(lookAhead?.type)) {
       return assignment();
     } else if (curr.type == TokenType.fnK) {
@@ -105,7 +107,9 @@ class Parser {
 
   /// Control flow Statement
   Node controlFlowStatement({bool isInLoop = false}) {
-    if (curr.type == TokenType.identifier &&
+    if (curr.type == TokenType.letK) {
+      return declaration();
+    } else if (curr.type == TokenType.identifier &&
         assignments.contains(lookAhead?.type)) {
       return assignment();
     } else if (curr.type == TokenType.lBrace) {
@@ -131,11 +135,11 @@ class Parser {
     eat(TokenType.returnK);
     if (curr.type == TokenType.semicolon) {
       eat(TokenType.semicolon);
-      return ReturnNode(returnNode: NullNode());
+      return ReturnNode(value: NullNode());
     }
     Node res = logicalAndOr();
     eat(TokenType.semicolon);
-    return ReturnNode(returnNode: res);
+    return ReturnNode(value: res);
   }
 
   /// Parses Return Statement
@@ -216,8 +220,32 @@ class Parser {
     );
   }
 
+  /// Parses a Declaration Statement
+  MultiDeclarationNode declaration() {
+    List<DeclarationNode> declarations = [];
+
+    eat(TokenType.letK);
+    IdentifierNode left = identifier();
+    eat(TokenType.eq);
+    Node right = logicalAndOr();
+    declarations.add(DeclarationNode(left: left, right: right));
+
+    if (curr.type == TokenType.comma) {
+      while (pos < tokens.length && curr.type != TokenType.semicolon) {
+        eat(TokenType.comma);
+        IdentifierNode left = identifier();
+        eat(TokenType.eq);
+        Node right = logicalAndOr();
+        declarations.add(DeclarationNode(left: left, right: right));
+      }
+    }
+    eat(TokenType.semicolon);
+
+    return MultiDeclarationNode(declarations: declarations);
+  }
+
   /// Parses a Assignment Statement
-  Node assignment() {
+  AssignmentNode assignment() {
     IdentifierNode left = identifier();
     String op = curr.value;
     eatAnyIn(assignments);
@@ -313,7 +341,7 @@ class Parser {
         res = AddNode(left: res, right: term());
       } else {
         next();
-        res = SubstractNode(left: res, right: term());
+        res = SubtractNode(left: res, right: term());
       }
     }
     return res;
@@ -371,11 +399,11 @@ class Parser {
     } else if (curr.type == TokenType.plus) {
       next();
       Node res = atom();
-      return UnaryPlus(node: res);
+      return UnaryPlus(value: res);
     } else if (curr.type == TokenType.minus) {
       next();
       Node res = atom();
-      return UnaryMinus(node: res);
+      return UnaryMinus(value: res);
     } else if (curr.type == TokenType.int) {
       Node res = IntNumberNode(value: curr.value);
       next();

@@ -22,6 +22,7 @@ const keywords = {
   "else": TokenType.elseK,
   "elif": TokenType.elifK,
   "fn": TokenType.fnK,
+  "let": TokenType.letK,
   "break": TokenType.breakK,
   "continue": TokenType.continueK,
   "return": TokenType.returnK,

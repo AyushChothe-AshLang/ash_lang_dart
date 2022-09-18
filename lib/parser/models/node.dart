@@ -1,9 +1,10 @@
-abstract class Node {
+abstract class Node<T> {
+  late T value;
   @override
   String toString() => "$runtimeType";
 }
 
-abstract class NumberNode implements Node {}
+abstract class NumberNode<T> implements Node<T> {}
 
 abstract class BinaryOpNode implements Node {
   Node left, right;
@@ -15,6 +16,9 @@ abstract class BinaryOpNode implements Node {
   });
   @override
   String toString() => "($left$op$right)";
+
+  @override
+  dynamic value;
 }
 
 abstract class BinaryOpNumberNode extends BinaryOpNode {
@@ -33,13 +37,14 @@ abstract class BinaryOpBooleanNode extends BinaryOpNode {
   });
 }
 
-abstract class UnaryNode implements Node {
-  Node node;
+abstract class UnaryNode implements Node<Node> {
+  @override
+  Node value;
   String op;
   UnaryNode({
-    required this.node,
+    required this.value,
     required this.op,
   });
   @override
-  String toString() => "($op$node)";
+  String toString() => "($op$value)";
 }

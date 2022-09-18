@@ -257,7 +257,7 @@ void main() {
               tokenizer.tokenize().toString(),
               [
                 Token(
-                  type: TokenType.number,
+                  type: TokenType.int,
                   value: 1.0,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
@@ -278,7 +278,7 @@ void main() {
               tokenizer.tokenize().toString(),
               [
                 Token(
-                  type: TokenType.number,
+                  type: TokenType.int,
                   value: 123.0,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
@@ -299,7 +299,7 @@ void main() {
               tokenizer.tokenize().toString(),
               [
                 Token(
-                  type: TokenType.number,
+                  type: TokenType.double,
                   value: 3.14,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
@@ -320,7 +320,7 @@ void main() {
               tokenizer.tokenize().toString(),
               [
                 Token(
-                  type: TokenType.number,
+                  type: TokenType.double,
                   value: 0.25,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
@@ -341,7 +341,7 @@ void main() {
               tokenizer.tokenize().toString(),
               [
                 Token(
-                  type: TokenType.number,
+                  type: TokenType.double,
                   value: 5.0,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
