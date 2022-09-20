@@ -1,24 +1,14 @@
-print "Hello Ash";
-let name = "Ayush";
-print name;
-name = "Ash";
-print name;
+fn main(){
+  let n1 = 0, n2 = 1;
+  let count = 0;
+  let nterms = 50;
 
-print 22;
-print 3.14;
-
-let a = 10;
-print a;
-a = 25;
-print a;
-let b = .14;
-print b;
-b = 3.14;
-print b;
-
-let isSelected = False;
-print isSelected;
-isSelected = True;
-print isSelected;
-
-print (a+b-10+11);
+  println("Fibonacci sequence:");
+  while (count < nterms){
+      println(n1);
+      let nth = n1 + n2;
+      n1 = n2;
+      n2 = nth;
+      count += 1;
+  }
+}

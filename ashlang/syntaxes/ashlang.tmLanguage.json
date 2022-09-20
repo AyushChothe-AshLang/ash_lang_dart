@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "AshLang",
+  "patterns": [
+    {
+      "include": "#comments-inline"
+    },
+    {
+      "include": "#punctuation"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#constants-and-special-vars"
+    },
+    {
+      "include": "#variables"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.ashlang",
+          "match": "\\b(true|false|null)\\b"
+        },
+        {
+          "name": "keyword.control.ashlang",
+          "match": "\\b(fn|let|break|continue|else|if|elif|return|while)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.ashlang",
+          "match": "(==|!=|<=?|>=?)"
+        },
+        {
+          "name": "keyword.operator.assignment.ashlang",
+          "match": "(=)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.ashlang",
+          "match": "(\\-|\\+|\\*|\\/|\\~\\/|%|\\^)"
+        },
+        {
+          "name": "keyword.operator.logical.ashlang",
+          "match": "(!|&|\\|)"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.ashlang",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.ashlang",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "constants-and-special-vars": {
+      "patterns": [
+        {
+          "name": "constant.language.ashlang",
+          "match": "\\b(true|false|null)\\b"
+        },
+        {
+          "name": "constant.numeric.ashlang",
+          "match": "\\b[0-9]+\\.?[0-9]*\\b"
+        },
+        {
+          "include": "#function-identifier"
+        }
+      ]
+    },
+    "variables": {
+      "match": "([a-zA-Z0-9_]+)",
+      "captures": {
+        "1": {
+          "name": "variable.parameter.ashlang"
+        }
+      }
+    },
+    "function-identifier": {
+      "patterns": [
+        {
+          "match": "([_$]*[a-z][a-zA-Z0-9_$]*\\()",
+          "captures": {
+            "0": {
+              "name": "entity.name.function.ashlang"
+            }
+          }
+        }
+      ]
+    },
+    "comments-inline": {
+      "patterns": [
+        {
+          "match": "((//).*)$",
+          "captures": {
+            "1": {
+              "name": "comment.line.double-slash.ashlang"
+            }
+          }
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.comma.ashlang",
+          "match": ","
+        },
+        {
+          "name": "punctuation.terminator.ashlang",
+          "match": ";"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.ash"
+}
