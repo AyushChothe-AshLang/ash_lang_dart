@@ -164,7 +164,7 @@ void main() {
               ),
             ].toString());
       });
-      test("Simicolon ';'", () {
+      test("Semicolon ';'", () {
         Tokenizer tokenizer = Tokenizer(code: ";");
         expect(
             tokenizer.tokenize().toString(),
@@ -180,6 +180,91 @@ void main() {
                 type: TokenType.eof,
                 pos: PositionRange(
                   from: Position(line: 1, column: 2),
+                ),
+              ),
+            ].toString());
+      });
+
+      test("Asiignment '= += -= *= /= %= ^= ~/= ^/='", () {
+        Tokenizer tokenizer = Tokenizer(code: "= += -= *= /= %= ^= ~/= ^/=");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.eq,
+                value: '=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                ),
+              ),
+              Token(
+                type: TokenType.plusEq,
+                value: '+=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 3),
+                  to: Position(line: 1, column: 4),
+                ),
+              ),
+              Token(
+                type: TokenType.minusEq,
+                value: '-=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 6),
+                  to: Position(line: 1, column: 7),
+                ),
+              ),
+              Token(
+                type: TokenType.multiplyEq,
+                value: '*=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 9),
+                  to: Position(line: 1, column: 10),
+                ),
+              ),
+              Token(
+                type: TokenType.divideEq,
+                value: '/=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 12),
+                  to: Position(line: 1, column: 13),
+                ),
+              ),
+              Token(
+                type: TokenType.modulusEq,
+                value: '%=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 15),
+                  to: Position(line: 1, column: 16),
+                ),
+              ),
+              Token(
+                type: TokenType.powerEq,
+                value: '^=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 18),
+                  to: Position(line: 1, column: 19),
+                ),
+              ),
+              Token(
+                type: TokenType.tildeDivideEq,
+                value: '~/=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 21),
+                  to: Position(line: 1, column: 23),
+                ),
+              ),
+              Token(
+                type: TokenType.powerDivideEq,
+                value: '^/=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 25),
+                  to: Position(line: 1, column: 27),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 28),
                 ),
               ),
             ].toString());
@@ -258,7 +343,7 @@ void main() {
               [
                 Token(
                   type: TokenType.int,
-                  value: 1.0,
+                  value: 1,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
                     to: Position(line: 1, column: 2),
@@ -279,7 +364,7 @@ void main() {
               [
                 Token(
                   type: TokenType.int,
-                  value: 123.0,
+                  value: 123,
                   pos: PositionRange(
                     from: Position(line: 1, column: 1),
                     to: Position(line: 1, column: 4),
@@ -455,25 +540,25 @@ void main() {
     test("Arithmatic Expression", () {
       Tokenizer tokenizer = Tokenizer(code: "(1+2)*3/(4^6);");
       Parser parser = Parser(tokens: tokenizer.tokenize());
-      expect(parser.parse().toString(), "[(((1.0+2.0)*3.0)/(4.0^6.0));");
+      expect(parser.logicalAndOr().toString(), "(((1+2)*3)/(4^6))");
     });
     test("Comparison", () {
       Tokenizer tokenizer = Tokenizer(code: "(1*2+3)<=(4/2)");
       Parser parser = Parser(tokens: tokenizer.tokenize());
-      expect(parser.parse().toString(), "(((1.0*2.0)+3.0)<=(4.0/2.0))");
+      expect(parser.logicalAndOr().toString(), "(((1*2)+3)<=(4/2))");
     });
     test("Comparison (Equality)", () {
       Tokenizer tokenizer =
           Tokenizer(code: "(1/2^3)<=(24/4)==((1/2)^3)<=(22/4)");
       Parser parser = Parser(tokens: tokenizer.tokenize());
-      expect(parser.parse().toString(),
-          "(((1.0/(2.0^3.0))<=(24.0/4.0))==(((1.0/2.0)^3.0)<=(22.0/4.0)))");
+      expect(parser.logicalAndOr().toString(),
+          "(((1/(2^3))<=(24/4))==(((1/2)^3)<=(22/4)))");
     });
     test("Logical And Or", () {
       Tokenizer tokenizer = Tokenizer(code: "(1==2 & (2==2 | 4==5) & 3<3)");
       Parser parser = Parser(tokens: tokenizer.tokenize());
-      expect(parser.parse().toString(),
-          "(((1.0==2.0)&((2.0==2.0)|(4.0==5.0)))&(3.0<3.0))");
+      expect(
+          parser.logicalAndOr().toString(), "(((1==2)&((2==2)|(4==5)))&(3<3))");
     });
   });
 }

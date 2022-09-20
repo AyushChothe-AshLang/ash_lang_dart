@@ -14,7 +14,7 @@ enum TokenType {
   powerDivide, // ^/
   modulus, // %
   power, // ^
-  tilde,
+  tilde, // ~
   plusEq, // +=
   minusEq, // -=
   multiplyEq, //\ *=
@@ -44,8 +44,8 @@ enum TokenType {
   // Keywords
   whileK, // while
   ifK, // if
-  elseK, // else
   elifK, // elif
+  elseK, // else
   fnK, // fn
   letK, // let
   breakK, // break
