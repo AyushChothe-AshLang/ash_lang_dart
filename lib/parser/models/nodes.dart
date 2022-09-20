@@ -7,7 +7,7 @@ class IntNumberNode implements NumberNode<int> {
     required this.value,
   });
   @override
-  String toString() => "$runtimeType:$value";
+  String toString() => "$value";
 }
 
 class DoubleNumberNode implements NumberNode<double> {
@@ -17,7 +17,7 @@ class DoubleNumberNode implements NumberNode<double> {
     required this.value,
   });
   @override
-  String toString() => "$runtimeType:$value";
+  String toString() => "$value";
 }
 
 class StringNode implements Node<String> {
@@ -27,7 +27,7 @@ class StringNode implements Node<String> {
     required this.value,
   });
   @override
-  String toString() => "$runtimeType:$value";
+  String toString() => value;
 }
 
 class BooleanNode implements Node<bool> {
@@ -37,7 +37,7 @@ class BooleanNode implements Node<bool> {
     required this.value,
   });
   @override
-  String toString() => "$runtimeType:$value";
+  String toString() => "$value";
 }
 
 class IdentifierNode implements Node<String> {
@@ -48,7 +48,7 @@ class IdentifierNode implements Node<String> {
   });
 
   @override
-  String toString() => "$runtimeType:$value";
+  String toString() => value;
 }
 
 class BlockStatementNode implements Node {
