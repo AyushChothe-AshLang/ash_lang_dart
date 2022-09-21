@@ -63,6 +63,30 @@ class BlockStatementNode implements Node {
   dynamic value;
 }
 
+class ListLiteralNode implements Node {
+  List<Node> elements;
+  ListLiteralNode({
+    required this.elements,
+  });
+  @override
+  String toString() => "$elements";
+
+  @override
+  dynamic value;
+}
+
+class MapLiteralNode implements Node {
+  Map<Node, Node> entries;
+  MapLiteralNode({
+    required this.entries,
+  });
+  @override
+  String toString() => "$entries";
+
+  @override
+  dynamic value;
+}
+
 class FunctionDeclarationNode implements Node {
   IdentifierNode fnId;
   List<IdentifierNode> params;
@@ -103,7 +127,7 @@ class ReturnNode implements Node<Node> {
 }
 
 class WhileLoopNode implements Node {
-  BinaryOpBooleanNode condition;
+  Node condition;
   BlockStatementNode block;
   WhileLoopNode({
     required this.condition,
@@ -117,7 +141,7 @@ class WhileLoopNode implements Node {
 }
 
 class IfStatementNode implements Node {
-  BinaryOpBooleanNode condition;
+  Node condition;
   BlockStatementNode trueBlock;
   List<ElifStatementNode> elifBlocks;
   BlockStatementNode? elseBlock;
@@ -136,7 +160,7 @@ class IfStatementNode implements Node {
 }
 
 class ElifStatementNode implements Node {
-  BinaryOpBooleanNode condition;
+  Node condition;
   BlockStatementNode trueBlock;
   ElifStatementNode({
     required this.condition,
@@ -179,6 +203,10 @@ class UnaryPlus extends UnaryNode {
 
 class UnaryMinus extends UnaryNode {
   UnaryMinus({required super.value}) : super(op: '-');
+}
+
+class UnaryNot extends UnaryNode {
+  UnaryNot({required super.value}) : super(op: '!');
 }
 
 class LessThanNode extends BinaryOpBooleanNode {

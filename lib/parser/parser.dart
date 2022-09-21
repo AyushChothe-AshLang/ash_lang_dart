@@ -178,7 +178,7 @@ class Parser {
   WhileLoopNode whileStatement() {
     eat(TokenType.whileK);
     eat(TokenType.lParan);
-    BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
+    Node condition = logicalAndOr();
     eat(TokenType.rParan);
     BlockStatementNode block = blockStatement(isInLoop: true);
 
@@ -189,7 +189,7 @@ class Parser {
     // Parse if condition
     eat(TokenType.ifK);
     eat(TokenType.lParan);
-    BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
+    Node condition = logicalAndOr();
     eat(TokenType.rParan);
     BlockStatementNode trueBlock = blockStatement(isInLoop: isInLoop);
 
@@ -198,7 +198,7 @@ class Parser {
     while (pos < tokens.length && curr.type == TokenType.elifK) {
       eat(TokenType.elifK);
       eat(TokenType.lParan);
-      BinaryOpBooleanNode condition = logicalAndOr() as BinaryOpBooleanNode;
+      Node condition = logicalAndOr();
       eat(TokenType.rParan);
       BlockStatementNode trueBlock = blockStatement(isInLoop: isInLoop);
       elifBlocks
@@ -242,6 +242,50 @@ class Parser {
     eat(TokenType.semicolon);
 
     return MultiDeclarationNode(declarations: declarations);
+  }
+
+  /// Parses a List
+  ListLiteralNode listLiteral() {
+    List<Node> elements = [];
+
+    eat(TokenType.lSquare);
+    if (curr.type != TokenType.rSquare) {
+      Node elem = logicalAndOr();
+      elements.add(elem);
+      if (curr.type == TokenType.comma) {
+        while (pos < tokens.length && curr.type != TokenType.rSquare) {
+          eat(TokenType.comma);
+          Node elem = logicalAndOr();
+          elements.add(elem);
+        }
+      }
+    }
+    eat(TokenType.rSquare);
+    return ListLiteralNode(elements: elements);
+  }
+
+  /// Parses a List
+  MapLiteralNode mapLiteral() {
+    Map<Node, Node> entries = {};
+
+    eat(TokenType.lBrace);
+    if (curr.type != TokenType.rBrace) {
+      Node key = logicalAndOr();
+      eat(TokenType.colon);
+      Node value = logicalAndOr();
+      entries[key] = value;
+      if (curr.type == TokenType.comma) {
+        while (pos < tokens.length && curr.type != TokenType.rBrace) {
+          eat(TokenType.comma);
+          Node key = logicalAndOr();
+          eat(TokenType.colon);
+          Node value = logicalAndOr();
+          entries[key] = value;
+        }
+      }
+    }
+    eat(TokenType.rBrace);
+    return MapLiteralNode(entries: entries);
   }
 
   /// Parses a Assignment Statement
@@ -396,6 +440,12 @@ class Parser {
       Node res = logicalAndOr();
       eat(TokenType.rParan);
       return res;
+    } else if (curr.type == TokenType.lSquare) {
+      Node res = listLiteral();
+      return res;
+    } else if (curr.type == TokenType.lBrace) {
+      Node res = mapLiteral();
+      return res;
     } else if (curr.type == TokenType.plus) {
       next();
       Node res = atom();
@@ -404,6 +454,10 @@ class Parser {
       next();
       Node res = atom();
       return UnaryMinus(value: res);
+    } else if (curr.type == TokenType.not) {
+      next();
+      Node res = atom();
+      return UnaryNot(value: res);
     } else if (curr.type == TokenType.int) {
       Node res = IntNumberNode(value: curr.value);
       next();

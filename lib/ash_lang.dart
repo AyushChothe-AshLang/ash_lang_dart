@@ -19,7 +19,7 @@ class AshLang {
     if (printAst) {
       print(ast);
     }
-    if (!printTokens && !printAst) {
+    if (!(printTokens || printAst)) {
       Interpreter(ast: ast).run();
     }
   }

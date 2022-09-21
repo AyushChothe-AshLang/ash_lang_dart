@@ -1,14 +1,14 @@
 fn main(){
-  let n1 = 0, n2 = 1;
-  let count = 0;
-  let nterms = 50;
-
-  println("Fibonacci sequence:");
-  while (count < nterms){
-      println(n1);
-      let nth = n1 + n2;
-      n1 = n2;
-      n2 = nth;
-      count += 1;
+  let i = 0, nums = [1, 2, 2, 3, 3, 3], counter = {};
+  while (i < len(nums)){
+    let num = at(nums, i);
+    if (!isPresent(counter, num)){
+      set(counter, num, 1);
+    } else {
+      let val = get(counter, num);
+      set(counter, num, (val + 1));
+    }
+    i += 1;
   }
+  println(counter);
 }

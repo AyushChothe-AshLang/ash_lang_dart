@@ -27,6 +27,8 @@ enum TokenType {
   rParan, // )
   lBrace, // {
   rBrace, // }
+  lSquare, // [
+  rSquare, // ]
   eq, // =
   neq, // !=
   deq, // ==

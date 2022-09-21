@@ -27,11 +27,25 @@ class Interpreter {
         i is int ? i.toDouble() : double.parse(i.toString()),
     'str': (dynamic i) => i.toString(),
     'chr': (int i) => String.fromCharCode(i),
-    'len': (String s) => s.length,
+    'len': (dynamic s) => s.length,
     'split': (String s, String p) => s.split(p),
     'join': (List<String> s, String p) => s.join(p),
     'upper': (String s) => s.toUpperCase(),
     'lower': (String s) => s.toLowerCase(),
+    // List Operations
+    "at": (dynamic list, int i) =>
+        list is Iterable ? list.elementAt(i) : list[i],
+    // Map Operations
+    "isPresent": (dynamic x, dynamic e) {
+      if (x is List) {
+        return x.contains(e);
+      } else if (x is Map) {
+        return x.containsKey(e);
+      }
+      throw Exception("isPresent() called on invalid object");
+    },
+    "get": (Map map, dynamic key) => map[key],
+    "set": (Map map, dynamic key, dynamic value) => map[key] = value
   };
 
   Value? run() {
@@ -75,6 +89,10 @@ class Interpreter {
       return walkMultiDeclarationNode(node, scope);
     } else if (node is BlockStatementNode) {
       return walkBlockStatementNode(node, scope);
+    } else if (node is ListLiteralNode) {
+      return walkListLiteralNode(node, scope);
+    } else if (node is MapLiteralNode) {
+      return walkMapLiteralNode(node, scope);
     }
     return NullValue();
   }
@@ -99,9 +117,11 @@ class Interpreter {
     String op = node.op;
     switch (op) {
       case '+':
-        return getCorrectValueType((walk(node, scope)).value);
+        return getCorrectValueType((walk(node.value, scope)).value);
       case '-':
-        return getCorrectValueType(-(walk(node, scope)).value);
+        return getCorrectValueType(-(walk(node.value, scope)).value);
+      case '!':
+        return getCorrectValueType(!(walk(node.value, scope).value));
     }
     throw Exception("Runtime Error!");
   }
@@ -116,6 +136,22 @@ class Interpreter {
       }
     }
     return NullValue();
+  }
+
+  ListValue walkListLiteralNode(ListLiteralNode node, Scope scope) {
+    List value = [];
+    for (Node elem in node.elements) {
+      value.add(walk(elem, scope).value);
+    }
+    return ListValue(value: value);
+  }
+
+  MapValue walkMapLiteralNode(MapLiteralNode node, Scope scope) {
+    Map value = {};
+    for (MapEntry<Node, Node> entry in node.entries.entries) {
+      value[walk(entry.key, scope).value] = (walk(entry.value, scope).value);
+    }
+    return MapValue(value: value);
   }
 
   Value walkBinaryOpNode(BinaryOpNode node, Scope scope) {
@@ -176,6 +212,8 @@ class Interpreter {
           return getCorrectNumberValue(value: left + right);
         } else if (right is String && left is String) {
           return StringValue(value: left + right);
+        } else if (right is List && left is List) {
+          return ListValue(value: left + right);
         } else {
           throw Exception("Runtime Error: '$op' used on invalid operands!");
         }
@@ -308,6 +346,10 @@ class Interpreter {
       return BooleanValue(value: res);
     } else if (res is String) {
       return StringValue(value: res);
+    } else if (res is List) {
+      return ListValue(value: res);
+    } else if (res is Map) {
+      return MapValue(value: res);
     }
     return NullValue();
   }

@@ -40,13 +40,17 @@ class Formatter {
     } else if (node is BooleanNode) {
       return "${node.value}";
     } else if (node is UnaryNode) {
-      return "${node.op}${walk(node.value, indent: indent)}";
+      return "${node.op}${walk(node.value, indent: indent, inRHS: true)}";
     } else if (node is IdentifierNode) {
       return node.value;
     } else if (node is ReturnNode) {
       return "${space}return ${walk(node.value, indent: indent)};\n";
+    } else if (node is DeclarationNode) {
+      return "${walk(node.left, indent: indent)} ${node.op} ${walk(node.right, indent: indent, inRHS: true)}";
     } else if (node is BinaryOpNode) {
       return "(${walk(node.left, indent: indent)} ${node.op} ${walk(node.right, indent: indent, inRHS: true)})";
+    } else if (node is MultiDeclarationNode) {
+      return "${space}let ${node.declarations.map((e) => walk(e, indent: indent)).join(", ")};\n";
     } else if (node is IfStatementNode) {
       return "${space}if (${walk(node.condition, indent: indent)})${walk(node.trueBlock, indent: indent, inRHS: true)}"
           "${node.elifBlocks.isNotEmpty ? node.elifBlocks.map((e) => walk(e, indent: indent, inRHS: true)).join('') : ''}"
@@ -70,6 +74,6 @@ class Formatter {
       block += (indent) >= 0 ? "$space}" : "";
       return block;
     }
-    return "";
+    return "$node";
   }
 }

@@ -38,6 +38,31 @@ class StringValue implements Value<String> {
   String toString() => value;
 }
 
+class ListValue implements Value<List> {
+  @override
+  List value;
+
+  ListValue({
+    required this.value,
+  });
+
+  @override
+  String toString() => "[${value.join(", ")}]";
+}
+
+class MapValue implements Value<Map> {
+  @override
+  Map value;
+
+  MapValue({
+    required this.value,
+  });
+
+  @override
+  String toString() =>
+      "{${value.entries.map((e) => '${e.key}:${e.value}').join(", ")}}";
+}
+
 class BooleanValue implements Value<bool> {
   @override
   bool value;

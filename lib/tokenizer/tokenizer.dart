@@ -146,6 +146,10 @@ class Tokenizer {
         addSingleCharToken(TokenType.lBrace);
       } else if (curr == "}") {
         addSingleCharToken(TokenType.rBrace);
+      } else if (curr == "[") {
+        addSingleCharToken(TokenType.lSquare);
+      } else if (curr == "]") {
+        addSingleCharToken(TokenType.rSquare);
       } else if (curr == "&") {
         addSingleCharToken(TokenType.and);
       } else if (curr == "|") {
