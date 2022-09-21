@@ -8,7 +8,7 @@ enum TokenType {
   identifier, // Variable or Function
   plus, // +
   minus, // -
-  multiply, //\ *
+  multiply, // *
   divide, // /
   tildeDivide, // ~/
   powerDivide, // ^/
@@ -17,7 +17,7 @@ enum TokenType {
   tilde, // ~
   plusEq, // +=
   minusEq, // -=
-  multiplyEq, //\ *=
+  multiplyEq, // *=
   divideEq, // /=
   tildeDivideEq, // ~/=
   powerDivideEq, // ^/=
@@ -28,7 +28,7 @@ enum TokenType {
   lBrace, // {
   rBrace, // }
   eq, // =
-  neq, // \!=
+  neq, // !=
   deq, // ==
   lt, // <
   gt, // >
@@ -36,7 +36,7 @@ enum TokenType {
   gte, // >=
   and, // &
   or, // |
-  not, // \!
+  not, // !
   comma, // ,
   colon, // :
   semicolon, // ;

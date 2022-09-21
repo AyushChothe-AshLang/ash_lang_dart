@@ -22,8 +22,8 @@ void main() {
               )
             ].toString());
       });
-      test("Operators (+-*/^)", () {
-        Tokenizer tokenizer = Tokenizer(code: "+-*/^");
+      test("Operators (+-*/^%)", () {
+        Tokenizer tokenizer = Tokenizer(code: "+-*/^%");
         expect(
             tokenizer.tokenize().toString(),
             [
@@ -63,9 +63,16 @@ void main() {
                 ),
               ),
               Token(
-                type: TokenType.eof,
+                type: TokenType.modulus,
+                value: '%',
                 pos: PositionRange(
                   from: Position(line: 1, column: 6),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 7),
                 ),
               ),
             ].toString());
@@ -132,6 +139,26 @@ void main() {
               Token(
                 type: TokenType.comma,
                 value: ',',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 2),
+                ),
+              ),
+            ].toString());
+      });
+      test("Not '!'", () {
+        Tokenizer tokenizer = Tokenizer(code: "!");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.not,
+                value: '!',
                 pos: PositionRange(
                   from: Position(line: 1, column: 1),
                 ),
@@ -265,6 +292,170 @@ void main() {
                 type: TokenType.eof,
                 pos: PositionRange(
                   from: Position(line: 1, column: 28),
+                ),
+              ),
+            ].toString());
+      });
+      test("Comparison '!= == < > <= >='", () {
+        Tokenizer tokenizer = Tokenizer(code: "!= == < > <= >=");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.neq,
+                value: '!=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                  to: Position(line: 1, column: 2),
+                ),
+              ),
+              Token(
+                type: TokenType.deq,
+                value: '==',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 4),
+                  to: Position(line: 1, column: 5),
+                ),
+              ),
+              Token(
+                type: TokenType.lt,
+                value: '<',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 7),
+                ),
+              ),
+              Token(
+                type: TokenType.gt,
+                value: '>',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 9),
+                ),
+              ),
+              Token(
+                type: TokenType.lte,
+                value: '<=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 11),
+                  to: Position(line: 1, column: 12),
+                ),
+              ),
+              Token(
+                type: TokenType.gte,
+                value: '>=',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 14),
+                  to: Position(line: 1, column: 15),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 16),
+                ),
+              ),
+            ].toString());
+      });
+
+      test("If Statements 'if elif else'", () {
+        Tokenizer tokenizer = Tokenizer(code: "if elif else");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.ifK,
+                value: 'if',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                  to: Position(line: 1, column: 3),
+                ),
+              ),
+              Token(
+                type: TokenType.elifK,
+                value: 'elif',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 4),
+                  to: Position(line: 1, column: 8),
+                ),
+              ),
+              Token(
+                type: TokenType.elseK,
+                value: 'else',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 9),
+                  to: Position(line: 1, column: 13),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 13),
+                ),
+              ),
+            ].toString());
+      });
+
+      test("While Statements 'while break continue'", () {
+        Tokenizer tokenizer = Tokenizer(code: "while break continue");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.whileK,
+                value: 'while',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                  to: Position(line: 1, column: 6),
+                ),
+              ),
+              Token(
+                type: TokenType.breakK,
+                value: 'break',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 7),
+                  to: Position(line: 1, column: 12),
+                ),
+              ),
+              Token(
+                type: TokenType.continueK,
+                value: 'continue',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 13),
+                  to: Position(line: 1, column: 21),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 21),
+                ),
+              ),
+            ].toString());
+      });
+      test("Function 'fn return'", () {
+        Tokenizer tokenizer = Tokenizer(code: "fn return");
+        expect(
+            tokenizer.tokenize().toString(),
+            [
+              Token(
+                type: TokenType.fnK,
+                value: 'fn',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 1),
+                  to: Position(line: 1, column: 3),
+                ),
+              ),
+              Token(
+                type: TokenType.returnK,
+                value: 'return',
+                pos: PositionRange(
+                  from: Position(line: 1, column: 4),
+                  to: Position(line: 1, column: 10),
+                ),
+              ),
+              Token(
+                type: TokenType.eof,
+                pos: PositionRange(
+                  from: Position(line: 1, column: 10),
                 ),
               ),
             ].toString());
