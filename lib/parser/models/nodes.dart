@@ -30,6 +30,16 @@ class StringNode implements Node<String> {
   String toString() => value;
 }
 
+class CommentNode implements Node<String> {
+  @override
+  String value;
+  CommentNode({
+    required this.value,
+  });
+  @override
+  String toString() => "//$value";
+}
+
 class BooleanNode implements Node<bool> {
   @override
   bool value;
@@ -265,19 +275,27 @@ class AssignmentNode extends BinaryOpNode {
 class BreakNode implements Node {
   @override
   dynamic value;
+  @override
+  String toString() => "break;";
 }
 
 class ContinueNode implements Node {
   @override
   dynamic value;
+  @override
+  String toString() => "continue;";
 }
 
 class NullNode implements Node {
   @override
   dynamic value;
+  @override
+  String toString() => "";
 }
 
 class EOFNode implements Node {
   @override
   dynamic value;
+  @override
+  String toString() => "";
 }

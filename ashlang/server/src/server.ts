@@ -4,6 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CompletionItem,
   createConnection,
   Diagnostic,
   DiagnosticSeverity,
@@ -12,6 +13,7 @@ import {
   InitializeResult,
   Position,
   ProposedFeatures,
+  TextDocumentPositionParams,
   TextDocuments,
   TextDocumentSyncKind,
 } from "vscode-languageserver/node";
@@ -60,6 +62,8 @@ connection.onInitialize((params: InitializeParams) => {
       completionProvider: {
         resolveProvider: false,
       },
+
+      documentFormattingProvider: true,
     },
   };
   if (hasWorkspaceFolderCapability) {
@@ -119,9 +123,7 @@ async function runCompiler(
   settings: ExampleSettings,
 ): Promise<string> {
   try {
-    console.log(tmpFile.name);
     fs.writeFileSync(tmpFile.name, text);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     connection.console.log(e);
   }
@@ -134,17 +136,9 @@ async function runCompiler(
         timeout: settings.maxCompilerInvocationTime,
       },
     );
-    // connection.console.log(output);
     stdout = output.stdout;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     stdout = e.stdout;
-    // if (e.signal != null) {
-    //   // connection.console.log("compile failed: ");
-    //   //   connection.console.log(e);
-    // } else {
-    //   //   connection.console.log("Error:" + e);
-    // }
   }
   connection.console.log(stdout);
   return stdout;
@@ -218,7 +212,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   const text = textDocument.getText();
   const stdout = await runCompiler(text, "analyze", settings);
   const diagnostics: Diagnostic[] = [];
-  console.log(textDocument.positionAt(0));
+
   if (stdout.trim() !== "") {
     const parts = stdout.split(":");
     const range = getRange(stdout);
@@ -243,41 +237,59 @@ connection.onDidChangeWatchedFiles((_change) => {
   connection.console.log("We received an file change event");
 });
 
-// // This handler provides the initial list of the completion items.
-// connection.onCompletion(
-//   (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-//     // The pass parameter contains the position of the text document in
-//     // which code complete got requested. For the example we ignore this
-//     // info and always provide the same completion items.
-//     return [
-//       {
-//         label: "TypeScript",
-//         kind: CompletionItemKind.Text,
-//         data: 1,
-//       },
-//       {
-//         label: "JavaScript",
-//         kind: CompletionItemKind.Text,
-//         data: 2,
-//       },
-//     ];
-//   },
-// );
+connection.onDocumentFormatting(async (params) => {
+  console.time("onDocumentFormatting");
+  const document = documents.get(params.textDocument.uri);
+  const settings = await getDocumentSettings(params.textDocument.uri);
 
-// // This handler resolves additional information for the item selected in
-// // the completion list.
-// connection.onCompletionResolve(
-//   (item: CompletionItem): CompletionItem => {
-//     if (item.data === 1) {
-//       item.detail = "TypeScript details";
-//       item.documentation = "TypeScript documentation";
-//     } else if (item.data === 2) {
-//       item.detail = "JavaScript details";
-//       item.documentation = "JavaScript documentation";
-//     }
-//     return item;
-//   },
-// );
+  const text = document?.getText();
+
+  if (typeof text == "string" && text.trim() != "") {
+    const formatted = await runCompiler(
+      text,
+      "fmt",
+      settings,
+    );
+    if (formatted.trim() != "") {
+      console.timeEnd("onDocumentFormatting");
+      return [
+        {
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: document!.lineCount, character: 0 },
+          },
+          newText: formatted,
+        },
+      ];
+    }
+  }
+  console.timeEnd("onDocumentFormatting");
+  return [];
+});
+// // This handler provides the initial list of the completion items.
+connection.onCompletion(
+  (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+    // The pass parameter contains the position of the text document in
+    // which code complete got requested. For the example we ignore this
+    // info and always provide the same completion items.
+    return [];
+  },
+);
+
+// This handler resolves additional information for the item selected in
+// the completion list.
+connection.onCompletionResolve(
+  (item: CompletionItem): CompletionItem => {
+    if (item.data === 1) {
+      item.detail = "TypeScript details";
+      item.documentation = "TypeScript documentation";
+    } else if (item.data === 2) {
+      item.detail = "JavaScript details";
+      item.documentation = "JavaScript documentation";
+    }
+    return item;
+  },
+);
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

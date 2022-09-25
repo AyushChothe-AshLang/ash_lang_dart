@@ -2,6 +2,9 @@
   "name": "ashlang",
   "displayName": "AshLang",
   "description": "AshLang Language support for VSCode",
+  "repository": {
+    "url": "https://github.com/AyushChothe/ash_lang"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.71.0"

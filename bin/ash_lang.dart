@@ -3,12 +3,8 @@ import 'dart:io';
 import 'package:ash_lang/ash_lang.dart';
 
 void main(List<String> args) {
-  // args = ["run", "./bin/code.ash"];
+  // args = ["run", "--tkn", "./bin/code.ash"];
   if (args.isNotEmpty) {
-    // if (!args.last.endsWith('.ash')) {
-    //   print("The last argument should be a '.ash' file");
-    //   return;
-    // }
     if (args.contains("run")) {
       AshLang.execute(
         File(args.last),
@@ -17,11 +13,12 @@ void main(List<String> args) {
       );
     } else if (args.contains("analyze")) {
       print(AshLang.analyze(File(args.last)));
+    } else if (args.contains("fmt")) {
+      stdout.write(AshLang.format(File(args.last)));
     }
-  } else if (args.contains("fmt")) {
-    print(AshLang.format(File(args.last)));
   } else {
-    print("""
+    print(
+        """
 ashlang [command] [options] [file]
 
 [command]

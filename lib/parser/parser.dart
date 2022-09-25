@@ -60,7 +60,11 @@ class Parser {
   }
 
   Node primaryStatement() {
-    if (curr.type == TokenType.letK) {
+    if (curr.type == TokenType.comment) {
+      Node res = CommentNode(value: curr.value);
+      eat(TokenType.comment);
+      return res;
+    } else if (curr.type == TokenType.letK) {
       return declaration();
     } else if (curr.type == TokenType.identifier &&
         assignments.contains(lookAhead?.type)) {
@@ -107,7 +111,11 @@ class Parser {
 
   /// Control flow Statement
   Node controlFlowStatement({bool isInLoop = false}) {
-    if (curr.type == TokenType.letK) {
+    if (curr.type == TokenType.comment) {
+      Node res = CommentNode(value: curr.value);
+      eat(TokenType.comment);
+      return res;
+    } else if (curr.type == TokenType.letK) {
       return declaration();
     } else if (curr.type == TokenType.identifier &&
         assignments.contains(lookAhead?.type)) {

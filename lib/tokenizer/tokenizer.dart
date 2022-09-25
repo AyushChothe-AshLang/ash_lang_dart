@@ -123,7 +123,11 @@ class Tokenizer {
       } else if (curr == "*") {
         addDoubleCharToken(TokenType.multiply, TokenType.multiplyEq, "*=");
       } else if (curr == "/") {
-        addDoubleCharToken(TokenType.divide, TokenType.divideEq, "/=");
+        if (lookAhead == '/') {
+          parseComment();
+        } else {
+          addDoubleCharToken(TokenType.divide, TokenType.divideEq, "/=");
+        }
       } else if (curr == "%") {
         addDoubleCharToken(TokenType.modulus, TokenType.modulusEq, "%=");
       } else if (curr == "^") {
@@ -174,6 +178,31 @@ class Tokenizer {
     }
     addEof(TokenType.eof);
     return tokens;
+  }
+
+  void parseComment() {
+    Position from = getCurrentPos();
+    String id = "";
+    // Advance first slash
+    next();
+    // Advance second slash
+    next();
+
+    while (pos < code.length && curr != '\n') {
+      id += curr;
+      next();
+    }
+
+    tokens.add(
+      Token(
+        type: TokenType.comment,
+        value: id,
+        pos: PositionRange(
+          from: from,
+          to: getCurrentPos(),
+        ),
+      ),
+    );
   }
 
   void parseNumberLiteral() {

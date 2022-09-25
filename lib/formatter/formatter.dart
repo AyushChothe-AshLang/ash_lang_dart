@@ -21,7 +21,7 @@ class Formatter {
 
   String format() {
     if (ast is! EOFNode) {
-      return walk(ast, indent: -1);
+      return walk(ast, indent: -1).trim();
     }
     return "";
   }
@@ -37,7 +37,7 @@ class Formatter {
         return "${node.value}";
       }
     } else if (node is StringNode) {
-      return "\"${node.value}\"";
+      return '"${node.value}"';
     } else if (node is BooleanNode) {
       return "${node.value}";
     } else if (node is UnaryNode) {
@@ -57,7 +57,7 @@ class Formatter {
     } else if (node is IfStatementNode) {
       return "${space}if (${walk(node.condition, indent: indent)})${walk(node.trueBlock, indent: indent, inRHS: true)}"
           "${node.elifBlocks.isNotEmpty ? node.elifBlocks.map((e) => walk(e, indent: indent, inRHS: true)).join('') : ''}"
-          "${node.elseBlock != null ? ' else ${walk(node.elseBlock!, indent: indent, inRHS: true)}' : ''}\n";
+          "${node.elseBlock != null ? ' else${walk(node.elseBlock!, indent: indent, inRHS: true)}' : ''}\n";
     } else if (node is ElifStatementNode) {
       return " elif (${walk(node.condition, indent: indent)})${walk(node.trueBlock, indent: indent, inRHS: true)}";
     } else if (node is WhileLoopNode) {
@@ -77,7 +77,7 @@ class Formatter {
       block += (indent) >= 0 ? "$space}" : "";
       return block;
     }
-    return "$node";
+    return inRHS ? "$node" : "$space$node\n";
   }
 
   String walkBinaryOpNumberNode(BinaryOpNumberNode node, [int parentPre = 0]) {

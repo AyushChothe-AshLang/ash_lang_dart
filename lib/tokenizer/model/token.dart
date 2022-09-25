@@ -42,6 +42,7 @@ enum TokenType {
   comma, // ,
   colon, // :
   semicolon, // ;
+  comment, // ;
   eof, // End of File
   // Keywords
   whileK, // while

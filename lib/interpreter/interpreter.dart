@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -102,7 +103,7 @@ class Interpreter {
   }
 
   StringValue walkStringNode(StringNode node, Scope scope) {
-    return StringValue(value: node.value);
+    return StringValue(value: jsonDecode('{"str":"${node.value}"}')['str']);
   }
 
   BooleanValue walkBooleanNode(BooleanNode node, Scope scope) {

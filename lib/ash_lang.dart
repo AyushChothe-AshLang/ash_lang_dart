@@ -25,9 +25,10 @@ class AshLang {
   }
 
   static String analyze(File file) {
-    List<Token> tokens = (Tokenizer(code: file.readAsStringSync()).tokenize());
     try {
-      Node ast = Parser(tokens: tokens).parse();
+      List<Token> tokens =
+          (Tokenizer(code: file.readAsStringSync()).tokenize());
+      Parser(tokens: tokens).parse();
     } catch (e) {
       return (e.toString());
     }
