@@ -9,17 +9,82 @@
   "categories": [
     "Programming Languages"
   ],
+  "activationEvents": [
+    "onLanguage:ashlang"
+  ],
+  "main": "./client/out/extension",
   "contributes": {
-    "languages": [{
-      "id": "ashlang",
-      "aliases": ["AshLang", "ashlang"],
-      "extensions": [".ash"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "ashlang",
-      "scopeName": "source.ash",
-      "path": "./syntaxes/ashlang.tmLanguage.json"
-    }]
+    "languages": [
+      {
+        "id": "ashlang",
+        "aliases": [
+          "AshLang",
+          "ashlang"
+        ],
+        "extensions": [
+          ".ash"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ashlang",
+        "scopeName": "source.ash",
+        "path": "./syntaxes/ashlang.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "AshLang Server",
+      "properties": {
+        "ashlangServer.maxNumberOfProblems": {
+          "scope": "resource",
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server."
+        },
+        "ashlangServer.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        },
+        "ashlangServer.executablePath": {
+          "scope": "resource",
+          "type": "string",
+          "default": "ash_lang",
+          "description": "The path to the ash_lang compiler executable."
+        },
+        "ashlangServer.maxCompilerInvocationTime": {
+          "scope": "resource",
+          "type": "number",
+          "default": 5000,
+          "description": "The maximum time in milliseconds that the compiler is allowed to take to process a file."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "test": "sh ./scripts/e2e.sh"
+  },
+  "devDependencies": {
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "eslint": "^8.13.0",
+    "mocha": "^9.2.1",
+    "typescript": "^4.7.2"
   }
 }

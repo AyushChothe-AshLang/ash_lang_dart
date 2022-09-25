@@ -6,6 +6,9 @@
       "include": "#comments-inline"
     },
     {
+      "include": "#strings"
+    },
+    {
       "include": "#punctuation"
     },
     {

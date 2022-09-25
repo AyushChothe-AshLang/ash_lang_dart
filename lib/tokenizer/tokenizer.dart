@@ -32,7 +32,7 @@ class Tokenizer {
     tokens.add(
       Token(
         type: type,
-        value: null,
+        value: "eof",
         pos: PositionRange(from: getCurrentPos()),
       ),
     );
@@ -107,7 +107,7 @@ class Tokenizer {
       if (whitespace.contains(curr)) {
         if (curr == "\n") {
           line++;
-          column = 1;
+          column = 0;
         }
         next();
       } else if (numbers.contains(curr)) {

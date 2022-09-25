@@ -1,5 +1,6 @@
 import 'package:ash_lang/parser/models/node.dart';
 import 'package:ash_lang/parser/models/nodes.dart';
+import 'package:ash_lang/utils/utils.dart';
 
 class Formatter {
   Node ast;
@@ -44,11 +45,13 @@ class Formatter {
     } else if (node is IdentifierNode) {
       return node.value;
     } else if (node is ReturnNode) {
-      return "${space}return ${walk(node.value, indent: indent)};\n";
+      return "${space}return ${walk(node.value, indent: indent, inRHS: true)};\n";
     } else if (node is DeclarationNode) {
       return "${walk(node.left, indent: indent)} ${node.op} ${walk(node.right, indent: indent, inRHS: true)}";
-    } else if (node is BinaryOpNode) {
-      return "(${walk(node.left, indent: indent)} ${node.op} ${walk(node.right, indent: indent, inRHS: true)})";
+    } else if (node is BinaryOpBooleanNode) {
+      return walkBinaryOpBooleanNode(node);
+    } else if (node is BinaryOpNumberNode) {
+      return walkBinaryOpNumberNode(node);
     } else if (node is MultiDeclarationNode) {
       return "${space}let ${node.declarations.map((e) => walk(e, indent: indent)).join(", ")};\n";
     } else if (node is IfStatementNode) {
@@ -67,7 +70,7 @@ class Formatter {
       }
       return "$space${node.fnId.value}(${node.args.map((e) => walk(e, indent: indent, inRHS: true)).join(', ')});\n";
     } else if (node is BlockStatementNode) {
-      String block = indent >= 0 ? (inRHS ? '{\n' : '$space{\n') : '';
+      String block = indent >= 0 ? (inRHS ? ' {\n' : '$space{\n') : '';
       for (Node stmt in node.statements) {
         block += walk(stmt, indent: indent + 1);
       }
@@ -75,5 +78,45 @@ class Formatter {
       return block;
     }
     return "$node";
+  }
+
+  String walkBinaryOpNumberNode(BinaryOpNumberNode node, [int parentPre = 0]) {
+    int pre = precedence[node.runtimeType]!;
+    String left = "", right = "";
+
+    if (node.left is BinaryOpNumberNode) {
+      left = walkBinaryOpNumberNode(node.left as BinaryOpNumberNode, pre);
+    } else {
+      left = walk(node.left, indent: 0, inRHS: true);
+    }
+    if (node.right is BinaryOpNumberNode) {
+      right = walkBinaryOpNumberNode(node.right as BinaryOpNumberNode, pre);
+    } else {
+      right = walk(node.right, indent: 0, inRHS: true);
+    }
+
+    if (pre < parentPre) {
+      return "($left ${node.op} $right)";
+    } else {
+      return "$left ${node.op} $right";
+    }
+  }
+
+  String walkBinaryOpBooleanNode(BinaryOpBooleanNode node) {
+    String out = "";
+    String left = walk(node.left, indent: 0, inRHS: true);
+    String right = walk(node.right, indent: 0, inRHS: true);
+    if (node.left is BinaryOpNode) {
+      out += "($left)";
+    } else {
+      out += left;
+    }
+    out += ' ${node.op} ';
+    if (node.right is BinaryOpNode) {
+      out += "($right)";
+    } else {
+      out += right;
+    }
+    return out;
   }
 }

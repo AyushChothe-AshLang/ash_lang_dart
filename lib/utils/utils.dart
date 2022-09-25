@@ -1,3 +1,4 @@
+import 'package:ash_lang/parser/models/nodes.dart';
 import 'package:ash_lang/tokenizer/model/token.dart';
 
 const numbers = "0123456789.";
@@ -26,6 +27,15 @@ const keywords = {
   "break": TokenType.breakK,
   "continue": TokenType.continueK,
   "return": TokenType.returnK,
+};
+
+const precedence = {
+  SubtractNode: 1,
+  AddNode: 1,
+  MultiplyNode: 2,
+  DivideNode: 3,
+  ModulusNode: 4,
+  PowerNode: 5,
 };
 
 TokenType getTokenTypeFromId(String id) {
